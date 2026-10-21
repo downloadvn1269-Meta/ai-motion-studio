@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Motion Studio | Free</title><style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#e8edff;background:#0c1222}*{box-sizing:border-box}
+body{margin:0}.wrap{max-width:1200px;margin:auto;padding:28px}.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+h1{margin:0;font-size:27px}p{color:#aab8d8}.pill{background:#154b3f;color:#b5ffe2;padding:6px 12px;border-radius:20px;font-size:12px}
+main{display:grid;grid-template-columns:360px 1fr;gap:24px}.panel{background:#141e34;border:1px solid #2d3a53;border-radius:18px;padding:22px}
+label{font-size:13px;display:block;margin:14px 0 7px;color:#c7d4ed}textarea,input,select{width:100%;background:#0d1528;border:1px solid #41506c;border-radius:10px;color:white;padding:11px;font:inherit}
+textarea{min-height:150px;resize:vertical}button{border:0;border-radius:10px;padding:12px 16px;color:white;background:#536dfe;font-weight:700;cursor:pointer}button.secondary{background:#34425e}button:disabled{opacity:.5;cursor:not-allowed}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}canvas{display:block;margin:auto;background:#0c2344;max-width:100%;max-height:70vh;aspect-ratio:9/16;border-radius:10px}#stage{display:flex;align-items:center;justify-content:center;min-height:440px}
+.note{font-size:12px;color:#9eacc6;line-height:1.65}.status{color:#bbf7d0;min-height:22px}a{color:#a6b9ff}@media(max-width:800px){main{grid-template-columns:1fr}.wrap{padding:15px}}
+</style></head><body><div class="wrap"><header class="head"><div><h1>✦ AI Motion Studio</h1><p>Tạo video Motion Graphic ngay trên trình duyệt — không cần máy chủ render</p></div><span class="pill">FREE • BETA</span></header>
+<main><section class="panel"><h2>Tạo video</h2><label for="prompt">Nội dung (mỗi dòng một phân cảnh)</label><textarea id="prompt">Việt Nam có thiên nhiên đa dạng và phong phú.
+Rừng nhiệt đới là nơi sinh sống của nhiều loài động vật.
+Mỗi chúng ta hãy chung tay bảo vệ đa dạng sinh học.</textarea>
+<label for="ratio">Tỉ lệ khung hình</label><select id="ratio"><option value="9:16">9:16 • Facebook Reels</option><option value="16:9">16:9 • Video ngang</option><option value="1:1">1:1 • Video vuông</option></select>
+<label for="duration">Thời lượng mỗi cảnh (giây)</label><input id="duration" type="number" min="2" max="15" value="5">
+<label for="palette">Phong cách màu</label><select id="palette"><option value="blue">Xanh hiện đại</option><option value="purple">Tím sáng tạo</option><option value="green">Xanh thiên nhiên</option></select>
+<div class="actions"><button id="preview">▶ Xem trước</button><button id="export" class="secondary">↓ Xuất video</button></div>
+<p class="status" id="status" role="status"></p><p class="note">Phiên bản này tạo chuyển động chữ và hình khối trực tiếp trên Canvas. File đầu ra là WebM hoặc định dạng được trình duyệt hỗ trợ. Chưa tích hợp AI, giọng đọc, MP4 chuẩn và tự động đăng Facebook.</p>
+</section><section class="panel"><div id="stage"><canvas id="canvas"></canvas></div><p class="note" style="text-align:center">Giữ tab mở trong lúc xuất video. Không đưa token Facebook vào mã nguồn phía trình duyệt.</p></section></main></div>
+<script>
+const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d');
+let playing=false,frame=0;
+const colors={blue:['#081f45','#316bea','#72daff'],purple:['#1c103d','#8853f5','#ffc3f6'],green:['#062e2a','#10a57b','#c9ff93']};
+function settings(){const [w,h]=$('ratio').value.split(':').map(Number); const height=720;return {width:Math.round(height*w/h),height,scenes:$('prompt').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,30),duration:Math.min(15,Math.max(2,Number($('duration').value)||5)),palette:colors[$('palette').value]};}
+function resize(s){canvas.width=s.width;canvas.height=s.height;}
+function textLines(t,max){const words=t.split(/\s+/),lines=[];let line='';for(const word of words){const candidate=(line+' '+word).trim();if(ctx.measureText(candidate).width>max&&line){lines.push(line);line=word;}else line=candidate;}if(line)lines.push(line);return lines;}
+function render(time,s){const {width:w,height:h,scenes,duration,palette:p}=s;const idx=Math.min(scenes.length-1,Math.floor(time/duration));const local=(time-idx*duration)/duration;const ease=1-Math.pow(1-Math.min(1,local*4),3);
+const grad=ctx.createLinearGradient(0,0,w,h);grad.addColorStop(0,p[0]);grad.addColorStop(1,p[1]);ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
+for(let i=0;i<14;i++){const a=i*2.4+time*.36;const x=w*(.5+.45*Math.sin(a*.7+i));const y=h*(.5+.48*Math.cos(a*.65+i));const r=14+(i%5)*15;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=p[2]+'24';ctx.fill();}
+ctx.save();ctx.translate(w/2,h/2);ctx.globalAlpha=Math.min(1,local*7, (1-local)*9);ctx.translate(0,(1-ease)*55);
+ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='bold '+Math.max(27,Math.floor(w/15))+'px system-ui';ctx.shadowColor='#0009';ctx.shadowBlur=13;
+const lines=textLines(scenes[idx]||'Nhập nội dung để tạo video',w*.8);const lineH=Math.max(40,w/12);lines.forEach((line,i)=>ctx.fillText(line,0,(i-(lines.length-1)/2)*lineH));
+ctx.restore();ctx.fillStyle=p[2];ctx.fillRect(0,h-9,w*((idx+Math.min(1,local))/scenes.length),9);
+ctx.font='bold 16px system-ui';ctx.fillStyle='#ffffffb0';ctx.textAlign='center';ctx.fillText('MOTION STUDIO',w/2,h-36);}
+function getType(){return ['video/mp4;codecs=avc1.42E01E','video/webm;codecs=vp9','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));}
+async function play(exporting){if(playing)return;const s=settings();if(!s.scenes.length){$('status').textContent='Hãy nhập nội dung';return;}resize(s);playing=true;$('preview').disabled=$('export').disabled=true;$('status').textContent=exporting?'Đang ghi video...':'Đang xem trước...';
+let rec=null,chunks=[],mime;try{if(exporting){if(!canvas.captureStream||!window.MediaRecorder)throw Error('Trình duyệt không hỗ trợ ghi video Canvas');mime=getType();if(!mime)throw Error('Không có codec ghi video phù hợp');rec=new MediaRecorder(canvas.captureStream(30),{mimeType:mime,videoBitsPerSecond:4000000});rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};rec.start(500);}
+const total=s.scenes.length*s.duration;let start=performance.now();await new Promise(resolve=>{function tick(now){const t=Math.min(total,(now-start)/1000);render(t,s);if(t<total)requestAnimationFrame(tick);else resolve();}requestAnimationFrame(tick)});
+if(rec){await new Promise(resolve=>{rec.onstop=resolve;rec.stop()});const blob=new Blob(chunks,{type:mime});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='motion-studio-'+Date.now()+(mime.includes('mp4')?'.mp4':'.webm');document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
+$('status').textContent=exporting?'Đã xuất video thành công.':'Đã xem trước xong.';}catch(e){$('status').textContent='Lỗi: '+e.message;}finally{playing=false;$('preview').disabled=$('export').disabled=false;}}
+$('preview').onclick=()=>play(false);$('export').onclick=()=>play(true);resize(settings());render(0,settings());$('ratio').onchange=()=>{if(!playing){resize(settings());render(0,settings())}};$('palette').onchange=()=>{if(!playing)render(0,settings())};
+</script></body></html>
