@@ -1,133 +1,93 @@
 <!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AI Motion Studio | Free</title><style>
-:root{font-family:system-ui,-apple-system,sans-serif;color:#e8edff;background:#0c1222}*{box-sizing:border-box}
-body{margin:0}.wrap{max-width:1200px;margin:auto;padding:28px}.head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
-h1{margin:0;font-size:27px}p{color:#aab8d8}.pill{background:#154b3f;color:#b5ffe2;padding:6px 12px;border-radius:20px;font-size:12px}
-main{display:grid;grid-template-columns:360px 1fr;gap:24px}.panel{background:#141e34;border:1px solid #2d3a53;border-radius:18px;padding:22px}
-label{font-size:13px;display:block;margin:14px 0 7px;color:#c7d4ed}textarea,input,select{width:100%;background:#0d1528;border:1px solid #41506c;border-radius:10px;color:white;padding:11px;font:inherit}
-textarea{min-height:150px;resize:vertical}button{border:0;border-radius:10px;padding:12px 16px;color:white;background:#536dfe;font-weight:700;cursor:pointer}button.secondary{background:#34425e}button:disabled{opacity:.5;cursor:not-allowed}
-.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}canvas{display:block;margin:auto;background:#0c2344;max-width:100%;max-height:70vh;aspect-ratio:9/16;border-radius:10px}#stage{display:flex;align-items:center;justify-content:center;min-height:440px}
-.note{font-size:12px;color:#9eacc6;line-height:1.65}.status{color:#bbf7d0;min-height:22px}a{color:#a6b9ff}@media(max-width:800px){main{grid-template-columns:1fr}.wrap{padding:15px}}
-</style></head><body><div class="wrap"><header class="head"><div><h1>✦ AI Motion Studio</h1><p>Studio Motion Graphic giáo dục • Mô hình cảnh quan low-poly • Chạy trên trình duyệt</p></div><span class="pill">FREE • BETA</span></header>
-<main><section class="panel"><h2>Tạo video</h2><label for="prompt">Lời thuyết minh (mỗi dòng một phân cảnh)</label><textarea id="prompt">Việt Nam sở hữu vùng biển rộng lớn, với những hòn đảo tuyệt đẹp.
-Dưới làn nước xanh là các rạn san hô và vô số loài sinh vật biển.
-Biển đảo mang đến nguồn lợi thủy sản, du lịch và giao thông vận tải.
-Tuy nhiên, rác thải và khai thác quá mức đang gây áp lực cho đại dương.
-Hãy chung tay gìn giữ môi trường và tài nguyên biển đảo Việt Nam.</textarea>
-<label for="ratio">Tỉ lệ khung hình</label><select id="ratio"><option value="16:9">16:9 • Video bài giảng Full HD</option><option value="9:16">9:16 • Facebook Reels</option><option value="1:1">1:1 • Video vuông</option></select>
-<label for="duration">Thời lượng mỗi cảnh (giây)</label><input id="duration" type="number" min="2" max="15" value="5">
-<label for="sceneStyle">Chủ đề mô hình</label><select id="sceneStyle"><option value="ocean">Biển đảo – san hô – tài nguyên</option><option value="forest">Rừng nhiệt đới và sinh vật</option></select><label for="palette">Phong cách màu</label><select id="palette"><option value="green">Xanh biển dịu – giáo dục</option><option value="blue">Xanh hiện đại</option><option value="purple">Tím sáng tạo</option></select>
-<label for="voice">Giọng đọc miễn phí (giọng có sẵn trên trình duyệt)</label>
-<select id="voice"><option value="">Đang tải giọng đọc...</option></select>
-<label for="rate">Tốc độ đọc: <span id="rateLabel">1.0×</span></label>
-<input id="rate" type="range" min="0.7" max="1.3" value="1" step="0.1">
-<div class="actions"><button type="button" class="secondary" id="testVoice">🔊 Nghe thử giọng</button><button type="button" class="secondary" id="stopVoice">■ Dừng đọc</button></div>
-<p class="note" id="voiceNote">Dùng SpeechSynthesis của thiết bị, không cần API hoặc thẻ thanh toán. Giọng có sẵn tùy trình duyệt/hệ điều hành. Giọng nghe thử chưa được ghép vào tệp video xuất.</p>
-<div class="actions"><button id="preview">▶ Xem trước</button><button id="export" class="secondary">↓ Xuất video</button></div>
-<p class="status" id="status" role="status"></p><p class="note">Phiên bản đang dùng mô hình cảnh quan 2.5D vẽ bằng Canvas, chuyển động các đối tượng theo từng cảnh. Đây chưa phải mô hình 3D thực. File đầu ra là WebM hoặc định dạng được trình duyệt hỗ trợ. Chưa tích hợp AI, MP4 chuẩn và tự động đăng Facebook. Giọng đọc miễn phí dùng để nghe thử và xem trước; tệp video xuất hiện chưa có giọng đọc.</p>
-</section><section class="panel"><div id="stage"><canvas id="canvas"></canvas></div><p class="note" style="text-align:center">Giữ tab mở trong lúc xuất video. Không đưa token Facebook vào mã nguồn phía trình duyệt.</p></section></main></div>
-<script>
-const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d');
-let playing=false,frame=0;
-const hasSpeech=('speechSynthesis' in window && 'SpeechSynthesisUtterance' in window);
-let voices=[];
-function refreshVoices(){
-  const select=$('voice'),previous=select.value;
-  voices=hasSpeech?window.speechSynthesis.getVoices():[];
-  const vi=voices.map((v,i)=>({v,i})).filter(({v})=>v.lang.toLowerCase().startsWith('vi'));
-  const available=vi.length?vi:voices.map((v,i)=>({v,i}));
-  select.replaceChildren();
-  if(!available.length){const o=new Option('Không tìm thấy giọng trên thiết bị','');select.add(o);$('voiceNote').textContent='Thiết bị chưa có giọng phù hợp. Hãy kiểm tra cài đặt giọng nói tiếng Việt của hệ điều hành hoặc trình duyệt.';return;}
-  for(const {v,i} of available)select.add(new Option(v.name+' — '+v.lang+(v.localService?' (thiết bị)':''),String(i)));
-  select.value=[...select.options].some(o=>o.value===previous)?previous:select.options[0].value;
-  $('voiceNote').textContent=vi.length?'Giọng tiếng Việt miễn phí từ trình duyệt hoặc hệ điều hành. Bạn có thể nghe thử, không cần API. Chưa thể nhúng âm thanh này vào video xuất.':'Không có giọng tiếng Việt trên thiết bị. Danh sách đang hiển thị các giọng khác; vui lòng cài giọng tiếng Việt nếu cần.';
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Motion Studio 3D · Free</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b1220;color:#eaf1ff;font:15px system-ui,-apple-system,Arial,sans-serif}header{display:flex;justify-content:space-between;align-items:center;padding:16px 28px;background:#141f34;border-bottom:1px solid #2a3b55}h1{font-size:22px;margin:0}header small{color:#92aac6}.badge{font-size:12px;color:#b9ffe3;background:#105843;padding:7px 12px;border-radius:20px}.app{max-width:1540px;margin:auto;padding:22px;display:grid;grid-template-columns:minmax(320px,420px) minmax(0,1fr);gap:20px}.panel{background:#152238;border:1px solid #2e405a;border-radius:17px;padding:21px}.panel h2{font-size:17px;margin:0 0 13px}label{display:block;margin:13px 0 7px;font-size:13px;color:#bfd0e7}input,select,textarea{font:inherit;width:100%;background:#0c182b;color:#eef5ff;border:1px solid #3c516d;border-radius:9px;padding:11px}textarea{resize:vertical;min-height:150px}input[type=range]{padding:0}input[type=file]{font-size:12px}button{border:0;background:#526bff;color:white;font-weight:700;padding:11px 15px;border-radius:9px;cursor:pointer}button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#354e70}.buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.hint{color:#90a6c4;font-size:12px;line-height:1.65}.success{color:#96e9c0}.warn{color:#ffd596}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}#stage{width:100%;background:#d9eeed;border-radius:12px;overflow:hidden;position:relative;aspect-ratio:16/9}#stage canvas{width:100%;height:100%;display:block}#overlays{pointer-events:none;position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:3% 4%;color:#1b5a59}#title{font-size:clamp(14px,2.35vw,32px);font-weight:800;max-width:88%;text-shadow:0 1px 0 #fff9}#subtitle{align-self:center;color:#fff;text-align:center;background:#0e5146e8;border-radius:8px;font-size:clamp(12px,1.25vw,20px);line-height:1.4;max-width:88%;padding:7px 18px;min-height:25px}.scene-strip{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}.scene-chip{font-size:12px;background:#223c5a;border:1px solid #49617b;padding:8px 10px;border-radius:8px}.scene-chip.active{background:#3758a1;border-color:#8caaff}#status{min-height:22px;margin:12px 0;color:#afe4cc}.divider{border-top:1px solid #30425a;margin:16px 0}.muted{color:#8da4c0}#downloadLink{display:none;margin-top:12px;color:#95cbff}.legend{font-size:12px;color:#b0c7de;margin-top:12px}footer{max-width:1500px;margin:20px auto;color:#96a8c1;font-size:12px;padding:0 22px 20px}@media(max-width:900px){.app{grid-template-columns:1fr}#title{font-size:20px}#subtitle{font-size:14px}} 
+</style></head><body>
+<header><div><h1>✦ AI Motion Studio 3D</h1><small>Motion Graphic giáo dục · Mô hình low-poly · Không n8n / Không API trả phí</small></div><span class="badge">FREE · V0.3 THREE.JS</span></header>
+<div class="app"><section class="panel"><h2>1 · Nhập yêu cầu tạo video</h2>
+<label for="topic">Nội dung / chủ đề (áp dụng nhiều lĩnh vực)</label><textarea id="topic">Môi trường và tài nguyên biển đảo Việt Nam. Giới thiệu vùng biển, đảo và các hệ sinh thái đặc sắc. Những loài sinh vật biển, san hô và nguồn lợi thủy sản. Hoạt động khai thác, giao thông và du lịch biển. Tác động của rác thải nhựa và ô nhiễm. Bảo vệ tài nguyên và hệ sinh thái biển đảo.</textarea>
+<div class="row"><div><label for="sceneCount">Số lượng cảnh</label><input type="number" min="2" max="16" value="6" id="sceneCount"></div><div><label for="seconds">Thời lượng mỗi cảnh</label><select id="seconds"><option value="6">6 giây</option><option value="8" selected>8 giây</option><option value="10">10 giây</option><option value="12">12 giây</option></select></div></div>
+<div class="row"><div><label for="ratio">Tỉ lệ khung hình</label><select id="ratio"><option value="16:9" selected>16:9 · Giáo dục</option><option value="9:16">9:16 · Reels</option><option value="1:1">1:1 · Vuông</option></select></div><div><label for="theme">Chủ đề mô hình 3D</label><select id="theme"><option value="auto">Tự nhận diện theo nội dung</option><option value="ocean">Biển đảo</option><option value="nature">Thiên nhiên</option><option value="city">Đô thị / xã hội</option><option value="space">Vũ trụ</option><option value="science">Khoa học</option><option value="tech">Công nghệ</option><option value="history">Lịch sử</option></select></div></div>
+<div class="divider"></div><h2>2 · Giọng đọc miễn phí</h2>
+<label for="voice">Chọn giọng đọc sẵn trên thiết bị</label><select id="voice"><option>Đang tìm giọng...</option></select>
+<label for="rate">Tốc độ đọc: <span id="rateDisplay">1.0×</span></label><input id="rate" type="range" min="0.7" max="1.3" value="1" step="0.1">
+<div class="buttons"><button id="testVoice" class="secondary">🔊 Nghe thử</button><button id="stopVoice" class="secondary">■ Dừng giọng</button></div>
+<p class="hint">Giọng Web Speech miễn phí, phụ thuộc giọng được cài trên thiết bị. Âm thanh đọc trực tiếp này dùng khi xem trước, không tự thu được vào MP4.</p>
+<label for="audio">Tùy chọn: tải lời đọc MP3/WAV để ghép vào video xuất</label><input id="audio" type="file" accept="audio/*"><p class="hint">Nếu có file lời đọc, ứng dụng sẽ ghi âm thanh đó vào video. Để ghép đúng thời lượng, hãy dùng file khớp với tổng thời gian video.</p>
+<div class="divider"></div><h2>3 · Tạo và xuất video</h2>
+<div class="buttons"><button id="generate">✦ Tạo phân cảnh 3D</button><button id="preview" class="secondary">▶ Xem trước</button><button id="export" class="secondary">↓ Xuất video</button></div>
+<div id="status" role="status"></div><a id="downloadLink">Tải video</a>
+<p class="hint warn">Cảnh 3D là mô hình dựng theo bộ thư viện có sẵn và chọn bằng từ khóa, KHÔNG phải hệ AI sinh video tự do như HeyGen/Hyper Frame. Video xuất ở định dạng mà trình duyệt hỗ trợ (thường là WebM). Không sử dụng API trả phí.</p></section>
+<section class="panel"><h2>Khung xem trước 3D low-poly</h2><div id="stage"><div id="overlays"><div id="title">AI Motion Studio · 3D Low-poly</div><div id="subtitle">Nhập nội dung và nhấn Tạo phân cảnh 3D</div></div></div><div class="scene-strip" id="strip"></div><p class="legend">Mô hình 3D sử dụng Three.js miễn phí · Góc camera isometric · Chuyển động vật thể · Phụ đề dạng lớp văn bản · Không logo bên thứ ba</p><p class="hint">Khi xuất, chữ và phụ đề được vẽ trực tiếp lên video; giữ tab mở đến khi hoàn tất. Nên dùng Chrome hoặc Edge mới nhất.</p></section></div>
+<footer>AI Motion Studio 3D · Phiên bản thử nghiệm miễn phí. Không lưu nội dung và không chuyển văn bản đến dịch vụ tạo AI bên ngoài.</footer>
+<script type="module">
+import * as THREE from 'https://esm.sh/three@0.180.0';
+const $=id=>document.getElementById(id),state={scenes:[],theme:'ocean',running:false};
+const stage=$('stage'),scene=new THREE.Scene();scene.background=new THREE.Color(0xe4f3ee);
+const camera=new THREE.OrthographicCamera(-9,9,5.0625,-5.0625,0.1,100);camera.position.set(12,11,15);camera.lookAt(0,0,0);
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.setSize(960,540,false);stage.prepend(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0xb6bbc0,2.25));
+const sun=new THREE.DirectionalLight(0xffffff,2.5);sun.position.set(-8,18,12);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);sun.shadow.camera.left=-15;sun.shadow.camera.right=15;sun.shadow.camera.top=15;sun.shadow.camera.bottom=-15;scene.add(sun);
+const world=new THREE.Group();scene.add(world);const moving=[];
+const mat=(c)=>new THREE.MeshStandardMaterial({color:c,flatShading:true,roughness:.87,metalness:0});
+const col={sand:mat('#e4ca88'),water:mat('#77cbd3'),grass:mat('#8cb980'),rock:mat('#aa9e91'),green:mat('#4e9779'),palm:mat('#438b60'),wood:mat('#967357'),white:mat('#f5f1df'),red:mat('#e67e64'),orange:mat('#eeaf67'),blue:mat('#6b98c6'),dark:mat('#496b7c'),purple:mat('#a79bcc'),gray:mat('#bdc5c1'),yellow:mat('#e2c55f')};
+function mesh(g,m,x=0,y=0,z=0,parent=world){const o=new THREE.Mesh(g,m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+function box(w,h,d,m,x,y,z,p=world){return mesh(new THREE.BoxGeometry(w,h,d),m,x,y,z,p)}
+function sphere(r,m,x,y,z,p=world,d=9){return mesh(new THREE.IcosahedronGeometry(r,d===1?1:0),m,x,y,z,p)}
+function cyl(rt,rb,h,m,x,y,z,p=world,n=7){return mesh(new THREE.CylinderGeometry(rt,rb,h,n),m,x,y,z,p)}
+function cone(r,h,m,x,y,z,p=world,n=7){return mesh(new THREE.ConeGeometry(r,h,n),m,x,y,z,p)}
+function base(type){const ground=type==='ocean'?col.water:type==='space'?col.dark:type==='city'?col.gray:type==='history'?col.sand:col.grass;
+cyl(6.8,6.25,.75,col.rock,0,-.7,0,world,8);cyl(6.8,6.8,.28,ground,0,-.2,0,world,8);}
+function tree(x,z,s=1){cyl(.12*s,.17*s,1.6*s,col.wood,x,.82*s,z);for(let j=0;j<3;j++)cone((.8-j*.14)*s,1.2*s,col.green,x,(1.55+j*.48)*s,z)}
+function palm(x,z,s=1){cyl(.11*s,.15*s,1.5*s,col.wood,x,.7*s,z);const crown=new THREE.Group();crown.position.set(x,1.57*s,z);world.add(crown);for(let a=0;a<7;a++){const f=mesh(new THREE.ConeGeometry(.24*s,1.65*s,4),col.palm,Math.sin(a*Math.PI*2/7)*.52*s,-.09*s,Math.cos(a*Math.PI*2/7)*.52*s,crown);f.rotation.z=.7;f.rotation.y=a*Math.PI*2/7;} }
+function boat(x,z){const g=new THREE.Group();g.position.set(x,.32,z);world.add(g);box(1.5,.34,.65,col.wood,0,0,0,g);box(.65,.53,.52,col.white,-.16,.41,0,g);const sail=cone(.68,1.7,col.white,.22,1.08,0,g,3);sail.rotation.z=-.16;moving.push({o:g,kind:'bob',x,z})}
+function fish(x,z,delay){const g=new THREE.Group();g.position.set(x,.2,z);world.add(g);const body=sphere(.25,delay%2?col.orange:col.red,0,0,0,g);body.scale.set(1.5,.65,.75);cone(.23,.5,col.orange,-.42,0,0,g,3).rotation.z=Math.PI/2;moving.push({o:g,kind:'swim',x,z,delay})}
+function mountain(x,z,s){cone(.9*s,2*s,col.rock,x,s,z);cone(.33*s,.45*s,col.white,x,1.86*s,z)}
+function building(x,z,h=2){box(.95,h,.95,col.white,x,h/2,z);box(.98,.13,1,col.blue,x,h+.06,z);for(let j=0;j<Math.floor(h);j++)box(.07,.22,1.01,col.blue,x,h*.15+j*.48,z)}
+function planet(x,y,z,r,m){const p=sphere(r,m,x,y,z);moving.push({o:p,kind:'spin'});}
+function makeTheme(type,idx){base(type);
+if(type==='ocean'){cyl(2,2,.35,col.sand,-1,.08,0,world,8);for(let i=0;i<5;i++)palm(-2.1+(i%3)*.9,-.9+(i%2)*.8,.65+(i%3)*.14);for(let i=0;i<13;i++){let a=i*2.4,r=3+i%3*.65;fish(Math.sin(a)*r,Math.cos(a)*r,i)}for(let i=0;i<11;i++){let a=i*2.1;cyl(.06,.13,.5+(i%4)*.11,i%2?col.red:col.purple,Math.sin(a)*3.5,.25,Math.cos(a)*3.5);}boat(3.25,-.55);if(idx%3===1)boat(-3.5,2.4);}
+else if(type==='nature'){for(let i=0;i<18;i++){const x=Math.sin(i*2.39)*(.9+i%4),z=Math.cos(i*2.39)*(.9+i%4);tree(x,z,.55+(i%4)*.17)}mountain(-2,-2,.9);mountain(2,-1.6,.66);for(let i=0;i<5;i++)fish(-1+i*.8,3,i);}
+else if(type==='city'){for(let i=0;i<13;i++){const x=-4+(i%5)*1.85,z=-2.65+Math.floor(i/5)*2.25;building(x,z,1.2+(i*7%5)*.55)}for(let i=0;i<5;i++)tree(-3.6+i*1.8,3.8,.5);}
+else if(type==='space'){for(let i=0;i<12;i++){const a=i*2.4,r=2+(i%4)*.6;planet(Math.sin(a)*r,.7+(i%5)*.48,Math.cos(a)*r,.2+(i%3)*.28,[col.blue,col.orange,col.purple][i%3])}planet(0,2.15,0,1.13,col.blue);cyl(.52,.78,1.7,col.white,-3,1.05,0);cone(.52,1.0,col.red,-3,2.42,0);}
+else if(type==='tech'){for(let i=0;i<12;i++){let x=-3.7+(i%4)*2.25,z=-2.2+Math.floor(i/4)*2.1;box(1.2,.3,1.2,col.blue,x,0,z);box(.72,.7,.72,col.gray,x,.5,z);for(let j=0;j<4;j++)box(.13,.11,.35,col.yellow,x-.43+j*.28,.24,z+.65);}sphere(1.05,col.purple,0,2.4,0);}
+else if(type==='science'){for(let i=0;i<7;i++){let a=i*Math.PI*2/7;const x=Math.sin(a)*3.2,z=Math.cos(a)*3.2;cyl(.44,.55,1.35,i%2?col.blue:col.red,x,.66,z);sphere(.35,col.yellow,x,1.46,z)}for(let i=0;i<10;i++){const a=i*Math.PI*2/10;planet(Math.sin(a)*1.5,2+Math.cos(a)*1.2,0,.16,col.orange);}sphere(.55,col.purple,0,2,0)}
+else if(type==='history'){for(let i=0;i<6;i++){const x=-3.2+i*1.3;box(.72,1.4,.72,col.sand,x,.7,-2);box(.86,.2,.86,col.white,x,1.45,-2)}box(7,.3,2,col.sand,0,1.6,-2);cone(3.5,1.65,col.red,0,2.65,-2,4);for(let i=0;i<6;i++)tree(-3.5+i*1.4,3.2,.42);}
 }
-function speak(text){
- if(!hasSpeech){$('status').textContent='Trình duyệt không hỗ trợ SpeechSynthesis.';return;}
- window.speechSynthesis.cancel();
- const u=new SpeechSynthesisUtterance(text);u.lang='vi-VN';
- const chosen=voices[Number($('voice').value)];if(chosen)u.voice=chosen;
- u.rate=Number($('rate').value);u.pitch=1;window.speechSynthesis.speak(u);
-}
-$('rate').oninput=()=>{$('rateLabel').textContent=Number($('rate').value).toFixed(1)+'×'};
-$('testVoice').onclick=()=>speak('Xin chào! Đây là giọng đọc thử miễn phí của AI Motion Studio.');
-$('stopVoice').onclick=()=>{if(hasSpeech)window.speechSynthesis.cancel()};
-if(hasSpeech){refreshVoices();window.speechSynthesis.onvoiceschanged=refreshVoices}else refreshVoices();
-
-const colors={blue:['#081f45','#316bea','#72daff'],purple:['#1c103d','#8853f5','#ffc3f6'],green:['#062e2a','#10a57b','#c9ff93']};
-function settings(){const [w,h]=$('ratio').value.split(':').map(Number); const height=1080;return {width:Math.round(height*w/h),height,scenes:$('prompt').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,30),duration:Math.min(15,Math.max(2,Number($('duration').value)||5)),palette:colors[$('palette').value],sceneStyle:$('sceneStyle').value};}
-function resize(s){canvas.width=s.width;canvas.height=s.height;}
-function textLines(t,max){const words=t.split(/\s+/),lines=[];let line='';for(const word of words){const candidate=(line+' '+word).trim();if(ctx.measureText(candidate).width>max&&line){lines.push(line);line=word;}else line=candidate;}if(line)lines.push(line);return lines;}
-
-function poly(points,color){ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();ctx.fill();}
-function ellipse(x,y,rx,ry,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.ellipse(x,y,Math.max(1,rx),Math.max(1,ry),0,0,Math.PI*2);ctx.fill();}
-function line(x1,y1,x2,y2,color,width=2){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
-function coral(x,y,size,color,t){line(x,y,x,y-size,color,3);for(let j=0;j<3;j++){const dy=size*(.35+j*.18),sway=Math.sin(t*1.8+x+j)*1.5;line(x,y-dy,x+(j%2?-1:1)*size*.38+sway,y-dy-size*.26,color,2.6);}}
-function fish(x,y,scale,color,t){ctx.save();ctx.translate(x,y+Math.sin(t*2+x*.02)*2);ctx.scale(scale,scale);ellipse(0,0,11,5,color);poly([[-8,0],[-19,-7],[-19,7]],color);ellipse(6,-1,1,1,'#213b42');ctx.restore();}
-function palm(x,y,size,t){line(x,y,x-4*size,y-48*size,'#8a6847',8*size);ellipse(x-4*size,y-48*size,12*size,6*size,'#6b9c60');for(let j=0;j<7;j++){const a=j*Math.PI*2/7+t*.03;const px=x-4*size+Math.cos(a)*29*size,py=y-48*size+Math.sin(a)*13*size+10*size;line(x-4*size,y-48*size,px,py,'#43875f',7*size);}}
-function boat(x,y,t){ctx.save();ctx.translate(x+Math.sin(t)*8,y+Math.cos(t*2)*3);poly([[-25,4],[25,4],[17,15],[-14,15]],'#d58b5a');poly([[-4,4],[-4,-20],[13,-20],[15,4]],'#fcfcf4');line(-5,-25,-5,4,'#516579',2);ctx.restore();}
-function oilRig(x,y,t){for(let v of [-18,18])line(x+v,y,x+v*.6,y-75,'#b8894a',4);poly([[x-31,y-77],[x+32,y-77],[x+32,y-66],[x-31,y-66]],'#e5af46');line(x+20,y-77,x+20,y-106,'#806f58',3);line(x+20,y-106,x+37,y-106,'#806f58',3);}
-function island(time,s,scene){
- const w=960,h=540;ctx.save();ctx.translate(w*.5,h*.56);
- const sx=1,sy=1;
- ellipse(0,147,320,38,'#a9c3bba0');
- // Layered miniature diorama
- ellipse(0,105,318,118,'#857450');poly([[-318,104],[-301,154],[-260,192],[258,192],[301,154],[318,104]],'#877550');
- ellipse(0,104,318,118,'#e6ce92');ellipse(0,91,295,103,'#88cbd3');ellipse(0,75,260,78,'#a1e0e1');
- // shallow sea glints
- for(let k=0;k<8;k++)ellipse(-205+k*57,76+Math.sin(k*3)*22,17,2,'#e2fbf1a6');
- // rocks and palms at rear
- ellipse(-39,-6,95,32,'#b6c998');ellipse(-54,-15,53,42,'#8aa27e');ellipse(-102,-21,31,31,'#9b8c6e');ellipse(-16,-17,39,35,'#8c9982');
- palm(-48,-13,1.15,time);palm(0,-4,.9,time+.4);palm(-100,-8,.78,time+1);
- // coral reef
- for(let i=0;i<28;i++){
-  const x=-249+(i*73)%510,y=63+(i*37)%102;
-  if((x/285)**2+((y-90)/105)**2>0.85)continue;
-  ellipse(x,y+5,12,4,'#719a86');coral(x,y,10+(i%4)*5,['#8faab2','#eaa480','#ce8676','#648e89'][i%4],time);
+function choose(t){const v=t.toLowerCase();if(/biển|đảo|đại dương|san hô|thủy sản|marine|ocean/.test(v))return 'ocean';if(/rừng|cây|sinh vật|môi trường|động vật|thiên nhiên|forest/.test(v))return 'nature';if(/vũ trụ|hành tinh|mặt trời|thiên văn|space|planet/.test(v))return 'space';if(/lịch sử|triều đại|di tích|vua|thời cổ|history/.test(v))return 'history';if(/máy tính|robot|ai|internet|công nghệ|digital|technology/.test(v))return 'tech';if(/hóa học|vật lí|nguyên tử|thí nghiệm|khoa học|science/.test(v))return 'science';return 'city'}
+function sentences(txt,count){const pieces=txt.replace(/[\n\r]+/g,'. ').split(/(?<=[.!?;。！？])\s+/).map(s=>s.trim()).filter(Boolean);if(!pieces.length)return Array(count).fill('Nội dung đang được chuẩn bị');const chunks=Array.from({length:count},()=>[]);pieces.forEach((p,i)=>chunks[Math.min(count-1,Math.floor(i*count/pieces.length))].push(p));for(let i=0;i<count;i++)if(!chunks[i].length)chunks[i].push(pieces[Math.min(pieces.length-1,Math.floor(i*pieces.length/count))]);return chunks.map(a=>a.join(' '))}
+function settings(){const [rw,rh]=$('ratio').value.split(':').map(Number);return {count:Math.max(2,Math.min(16,Number($('sceneCount').value)||6)),duration:Number($('seconds').value),ratio:rw/rh,theme:$('theme').value,topic:$('topic').value.trim()}}
+function rebuild(){const s=settings();if(!s.topic){$('status').textContent='Hãy nhập nội dung trước.';return false}state.opts=s;state.scenes=sentences(s.topic,s.count);state.theme=s.theme==='auto'?choose(s.topic):s.theme;show(0,0);$('strip').replaceChildren();for(let i=0;i<state.scenes.length;i++){const b=document.createElement('button');b.className='scene-chip';b.textContent='Cảnh '+(i+1);b.onclick=()=>{if(!state.running)show(i,0)};$('strip').append(b)}$('status').textContent='Đã tạo '+s.count+' phân cảnh theo chủ đề '+state.theme+'.';return true}
+let lastScene=-1;
+function show(i,t){if(lastScene!==i){while(world.children.length)world.remove(world.children[0]);moving.length=0;makeTheme(state.theme,i);lastScene=i;}const a=t;for(const m of moving){if(m.kind==='spin')m.o.rotation.y=a*.5;else if(m.kind==='bob')m.o.position.y=.30+Math.sin(a*1.8)*.10;else if(m.kind==='swim'){m.o.position.x=m.x+Math.sin(a*.8+m.delay)*.7;m.o.position.y=.24+Math.cos(a*1.5+m.delay)*.10;}}world.rotation.y=Math.sin(a*.17)*.09;camera.position.set(12+Math.sin(a*.2)*1.2,11,15);camera.lookAt(0,0,0);renderer.render(scene,camera);
+$('title').textContent='CẢNH '+(i+1)+' · '+({ocean:'Biển đảo',nature:'Thiên nhiên',city:'Đô thị và đời sống',space:'Vũ trụ',science:'Khoa học',tech:'Công nghệ',history:'Lịch sử'}[state.theme]||'Motion Graphic');
+$('subtitle').textContent=state.scenes[i];[...$('strip').children].forEach((b,j)=>b.classList.toggle('active',i===j));}
+function resize(){const r=state.opts?.ratio||16/9;const W=r>1.2?1280:r<.75?720:960,H=Math.round(W/r);renderer.setSize(W,H,false);camera.left=-9*r/(16/9);camera.right=9*r/(16/9);camera.top=5.0625;camera.bottom=-5.0625;camera.updateProjectionMatrix();stage.style.aspectRatio=W+'/'+H;show(Math.max(0,lastScene),0)}
+const speech=('speechSynthesis' in window&&'SpeechSynthesisUtterance' in window);let voices=[];
+function loadVoices(){voices=speech?speechSynthesis.getVoices():[];const prior=$('voice').value;const list=voices.map((v,i)=>({v,i})).filter(x=>x.v.lang.toLowerCase().startsWith('vi'));const target=list.length?list:voices.map((v,i)=>({v,i}));$('voice').replaceChildren();for(const {v,i} of target)$('voice').add(new Option(v.name+' ('+v.lang+')',i));if(target.length){$('voice').value=[...$('voice').options].some(o=>o.value===prior)?prior:String(target[0].i)}else $('voice').add(new Option('Thiết bị chưa có giọng đọc',''));if(!list.length)$('status').textContent='Chưa phát hiện giọng tiếng Việt trên thiết bị. Có thể cài giọng tiếng Việt trong hệ điều hành.'}
+if(speech){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}else $('voice').replaceChildren(new Option('Trình duyệt không hỗ trợ giọng đọc',''));
+function talk(t){if(!speech)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='vi-VN';const v=voices[Number($('voice').value)];if(v)u.voice=v;u.rate=Number($('rate').value);speechSynthesis.speak(u)}
+$('rate').oninput=()=>$('rateDisplay').textContent=Number($('rate').value).toFixed(1)+'×';
+$('testVoice').onclick=()=>talk('Xin chào! Đây là giọng đọc miễn phí của AI Motion Studio ba chiều.');
+$('stopVoice').onclick=()=>{if(speech)speechSynthesis.cancel()};
+const overlayCanvas=document.createElement('canvas'),out=overlayCanvas.getContext('2d');
+function wrap(text,max,font){out.font=font;const words=text.split(/\s+/),arr=[];let row='';for(const word of words){const next=(row+' '+word).trim();if(out.measureText(next).width>max&&row){arr.push(row);row=word}else row=next}if(row)arr.push(row);return arr.slice(0,3)}
+function composite(i,t){const w=renderer.domElement.width,h=renderer.domElement.height;overlayCanvas.width=w;overlayCanvas.height=h;out.drawImage(renderer.domElement,0,0,w,h);const scale=w/1280;out.font='bold '+Math.round(31*scale)+'px system-ui';out.textAlign='left';out.fillStyle='#195b54';out.fillText($('title').textContent,36*scale,66*scale);const sub=state.scenes[i];const font='bold '+Math.round(25*scale)+'px system-ui';const lines=wrap(sub,w*.83,font);out.font=font;const lh=35*scale;const wide=Math.max(...lines.map(x=>out.measureText(x).width));const bw=wide+40*scale,bh=lines.length*lh+18*scale;out.fillStyle='#14584de9';out.beginPath();out.roundRect((w-bw)/2,h-bh-24*scale,bw,bh,9*scale);out.fill();out.textAlign='center';out.fillStyle='#fff';lines.forEach((line,j)=>out.fillText(line,w/2,h-bh-24*scale+33*scale+j*lh));}
+async function run(exporting){if(state.running)return;if(!rebuild())return;state.running=true;$('preview').disabled=$('export').disabled=$('generate').disabled=true;
+const s=state.opts,duration=s.count*s.duration;$('status').textContent=exporting?'Đang dựng và xuất video...':'Đang xem trước...';
+let rec=null,chunks=[],audioElement=null,audioCtx=null,stream=null,track=null;try{
+ resize();const file=$('audio').files[0];let type='';
+ if(exporting){
+ if(!window.MediaRecorder||!overlayCanvas.captureStream)throw Error('Trình duyệt không hỗ trợ xuất video.');
+ type=['video/mp4;codecs=avc1.42E01E','video/webm;codecs=vp9','video/webm'].find(v=>MediaRecorder.isTypeSupported(v));if(!type)throw Error('Thiết bị không hỗ trợ codec video.');
+ stream=overlayCanvas.captureStream(30);
+ if(file){audioElement=new Audio(URL.createObjectURL(file));audioElement.crossOrigin='anonymous';audioCtx=new AudioContext();const src=audioCtx.createMediaElementSource(audioElement),dest=audioCtx.createMediaStreamDestination();src.connect(dest);src.connect(audioCtx.destination);for(const at of dest.stream.getAudioTracks())stream.addTrack(at);await audioCtx.resume();audioElement.play().catch(()=>{});}
+ rec=new MediaRecorder(stream,{mimeType:type,videoBitsPerSecond:4500000});rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};rec.start(500);
  }
- // fish movements
- for(let i=0;i<13;i++){const x=-210+((i*43+time*(8+i%3*3))%450),y=49+(i*19)%113;fish(x,y,.66+(i%3)*.14,['#d77e48','#eeae58','#789f9d'][i%3],time);}
- // scene-dependent elements
- const text=scene.toLowerCase();const pollution=/rác|ô nhiễm|khai thác quá|thách thức|áp lực/.test(text);
- const resources=/tài nguyên|dầu|thủy sản|khoáng sản|nguồn lợi|giao thông|du lịch/.test(text);
- if(resources){boat(188,14,time);oilRig(214,85,time);}
- if(pollution){for(let i=0;i<9;i++){const x=-210+i*47;poly([[x,123],[x+9,120],[x+15,129],[x+4,134]],i%2?'#e17e67':'#c2c9c1');}}
- if(/bảo vệ|gìn giữ|chung tay/.test(text)){for(let i=0;i<4;i++){ellipse(160+i*12,-4-i*6,24,12,'#58986b');}}
- if(s.sceneStyle==='forest'){for(let i=0;i<8;i++)palm(-200+i*55,70+(i%3)*25,.55,time+i);}
- ctx.restore();
-}
-function wrapCaption(text,maxWidth){ctx.font='19px system-ui';const words=text.split(/\s+/),lines=[];let row='';for(const word of words){const next=(row+' '+word).trim();if(ctx.measureText(next).width>maxWidth&&row){lines.push(row);row=word;}else row=next;}if(row)lines.push(row);return lines.slice(0,3);}
-function render(time,s){
- const outputW=s.width,outputH=s.height;
- ctx.clearRect(0,0,outputW,outputH);ctx.save();
- const k=Math.min(outputW/960,outputH/540);ctx.translate((outputW-960*k)/2,(outputH-540*k)/2);ctx.scale(k,k);
- ctx.fillStyle='#e5f1ed';ctx.fillRect(-500,-500,1960,1600);
- const count=s.scenes.length||1,idx=Math.min(count-1,Math.floor(time/s.duration)),part=(time-idx*s.duration)/s.duration;
- const title=s.scenes[idx]||'Môi trường và tài nguyên biển đảo';
- const thematic=[['MÔI TRƯỜNG BIỂN ĐẢO','Khám phá biển đảo Việt Nam'],['ĐA DẠNG SINH HỌC','Một thế giới giàu sức sống'],['GIÁ TRỊ CỦA BIỂN','Tài nguyên và phát triển'],['NHẬN DIỆN THÁCH THỨC','Những sức ép lên môi trường'],['CHUNG TAY HÀNH ĐỘNG','Gìn giữ biển xanh']];
- const headings=thematic[idx%thematic.length];ctx.textAlign='left';ctx.shadowBlur=0;ctx.fillStyle='#164e43';ctx.font='bold 14px system-ui';ctx.fillText(headings[0],35,33);
- ctx.font='bold 31px system-ui';ctx.fillText(headings[1],35,71);
- island(time,s,title);
- // tags
- const tags=/rác|ô nhiễm|áp lực/.test(title.toLowerCase())?['Rác thải nhựa','Khai thác quá mức']:['Hệ sinh thái biển','San hô','Sinh vật biển'];
- ctx.font='14px system-ui';let x=36;for(const tag of tags){const tw=ctx.measureText(tag).width+24;ctx.fillStyle='#f9f8e7';ctx.fillRect(x,444,tw,29);ctx.fillStyle='#405e4e';ctx.fillText(tag,x+12,463);x+=tw+10;}
- const captions=wrapCaption(title,810);ctx.font='19px system-ui';let maxW=0;for(const l of captions)maxW=Math.max(maxW,ctx.measureText(l).width);
- const barW=maxW+40,barH=captions.length*27+15,barY=504-barH;ctx.fillStyle='#144f42';ctx.beginPath();ctx.roundRect(480-barW/2,barY,barW,barH,7);ctx.fill();
- ctx.fillStyle='#fff';ctx.textAlign='center';captions.forEach((t,i)=>ctx.fillText(t,480,barY+28+i*27));
- ctx.fillStyle='#246355';ctx.fillRect(0,0,960*((idx+part)/count),4);
- ctx.restore();
-}
-function getType(){return ['video/mp4;codecs=avc1.42E01E','video/webm;codecs=vp9','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));}
-async function play(exporting){if(playing)return;const s=settings();if(!s.scenes.length){$('status').textContent='Hãy nhập nội dung';return;}resize(s);playing=true;$('preview').disabled=$('export').disabled=true;$('status').textContent=exporting?'Đang ghi video...':'Đang xem trước...';
-let rec=null,chunks=[],mime;try{if(exporting){if(!canvas.captureStream||!window.MediaRecorder)throw Error('Trình duyệt không hỗ trợ ghi video Canvas');mime=getType();if(!mime)throw Error('Không có codec ghi video phù hợp');rec=new MediaRecorder(canvas.captureStream(30),{mimeType:mime,videoBitsPerSecond:4000000});rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};rec.start(500);}
-const total=s.scenes.length*s.duration;let start=performance.now(),lastScene=-1;
-await new Promise(resolve=>{function tick(now){
- const t=Math.min(total,(now-start)/1000),scene=Math.min(s.scenes.length-1,Math.floor(t/s.duration));
- if(!exporting&&scene!==lastScene){lastScene=scene;speak(s.scenes[scene]);}
- render(t,s);if(t<total)requestAnimationFrame(tick);else resolve();
-}requestAnimationFrame(tick)});
-if(rec){await new Promise(resolve=>{rec.onstop=resolve;rec.stop()});const blob=new Blob(chunks,{type:mime});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='motion-studio-'+Date.now()+(mime.includes('mp4')?'.mp4':'.webm');document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
-$('status').textContent=exporting?'Đã xuất video thành công.':'Đã xem trước xong.';}catch(e){$('status').textContent='Lỗi: '+e.message;}finally{if(hasSpeech)window.speechSynthesis.cancel();playing=false;$('preview').disabled=$('export').disabled=false;}}
-$('preview').onclick=()=>play(false);$('export').onclick=()=>play(true);resize(settings());render(0,settings());$('sceneStyle').onchange=()=>{if(!playing)render(0,settings())};$('ratio').onchange=()=>{if(!playing){resize(settings());render(0,settings())}};$('palette').onchange=()=>{if(!playing)render(0,settings())};
+ let start=performance.now(),old=-1;await new Promise(resolve=>{function tick(now){const t=Math.min(duration,(now-start)/1000),i=Math.min(s.count-1,Math.floor(t/s.duration));if(i!==old){if(!exporting)talk(state.scenes[i]);old=i;}show(i,t);if(exporting)composite(i,t);if(t<duration)requestAnimationFrame(tick);else resolve()}requestAnimationFrame(tick)});
+ if(rec){await new Promise(resolve=>{rec.onstop=resolve;rec.stop()});const blob=new Blob(chunks,{type}),url=URL.createObjectURL(blob),link=$('downloadLink');link.href=url;link.download='motion-studio-3d-'+Date.now()+(type.includes('mp4')?'.mp4':'.webm');link.style.display='block';link.textContent='⬇ Tải video '+Math.round(blob.size/1024/1024*10)/10+' MB';link.onclick=()=>setTimeout(()=>URL.revokeObjectURL(url),120000)}
+ $('status').textContent=exporting?'Đã dựng xong! '+(file?'Đã ghép file âm thanh.':'Video chưa có giọng đọc — muốn có âm thanh, chọn file MP3/WAV trước khi xuất.'):'Đã xem trước xong.';
+ }catch(e){$('status').textContent='Có lỗi: '+e.message;}finally{if(speech)speechSynthesis.cancel();if(audioElement){audioElement.pause();URL.revokeObjectURL(audioElement.src)}if(audioCtx)audioCtx.close().catch(()=>{});if(stream)stream.getTracks().forEach(t=>t.stop());state.running=false;$('preview').disabled=$('export').disabled=$('generate').disabled=false;}}
+$('generate').onclick=()=>{if(rebuild())resize()};$('preview').onclick=()=>run(false);$('export').onclick=()=>run(true);$('ratio').onchange=()=>{if(!state.running)resize()};rebuild();resize();
 </script></body></html>
