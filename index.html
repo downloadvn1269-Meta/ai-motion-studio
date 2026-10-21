@@ -97,7 +97,7 @@ function island(time,s,scene){
  if(s.sceneStyle==='forest'){for(let i=0;i<8;i++)palm(-200+i*55,70+(i%3)*25,.55,time+i);}
  ctx.restore();
 }
-function wrapCaption(text,maxWidth){ctx.font='19px system-ui';const words=text.split(/\\s+/),lines=[];let row='';for(const word of words){const next=(row+' '+word).trim();if(ctx.measureText(next).width>maxWidth&&row){lines.push(row);row=word;}else row=next;}if(row)lines.push(row);return lines.slice(0,3);}
+function wrapCaption(text,maxWidth){ctx.font='19px system-ui';const words=text.split(/\s+/),lines=[];let row='';for(const word of words){const next=(row+' '+word).trim();if(ctx.measureText(next).width>maxWidth&&row){lines.push(row);row=word;}else row=next;}if(row)lines.push(row);return lines.slice(0,3);}
 function render(time,s){
  const outputW=s.width,outputH=s.height;
  ctx.clearRect(0,0,outputW,outputH);ctx.save();
