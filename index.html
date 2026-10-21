@@ -9,13 +9,15 @@ label{font-size:13px;display:block;margin:14px 0 7px;color:#c7d4ed}textarea,inpu
 textarea{min-height:150px;resize:vertical}button{border:0;border-radius:10px;padding:12px 16px;color:white;background:#536dfe;font-weight:700;cursor:pointer}button.secondary{background:#34425e}button:disabled{opacity:.5;cursor:not-allowed}
 .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:20px}canvas{display:block;margin:auto;background:#0c2344;max-width:100%;max-height:70vh;aspect-ratio:9/16;border-radius:10px}#stage{display:flex;align-items:center;justify-content:center;min-height:440px}
 .note{font-size:12px;color:#9eacc6;line-height:1.65}.status{color:#bbf7d0;min-height:22px}a{color:#a6b9ff}@media(max-width:800px){main{grid-template-columns:1fr}.wrap{padding:15px}}
-</style></head><body><div class="wrap"><header class="head"><div><h1>✦ AI Motion Studio</h1><p>Tạo video Motion Graphic ngay trên trình duyệt — không cần máy chủ render</p></div><span class="pill">FREE • BETA</span></header>
-<main><section class="panel"><h2>Tạo video</h2><label for="prompt">Nội dung (mỗi dòng một phân cảnh)</label><textarea id="prompt">Việt Nam có thiên nhiên đa dạng và phong phú.
-Rừng nhiệt đới là nơi sinh sống của nhiều loài động vật.
-Mỗi chúng ta hãy chung tay bảo vệ đa dạng sinh học.</textarea>
-<label for="ratio">Tỉ lệ khung hình</label><select id="ratio"><option value="9:16">9:16 • Facebook Reels</option><option value="16:9">16:9 • Video ngang</option><option value="1:1">1:1 • Video vuông</option></select>
+</style></head><body><div class="wrap"><header class="head"><div><h1>✦ AI Motion Studio</h1><p>Studio Motion Graphic giáo dục • Mô hình cảnh quan low-poly • Chạy trên trình duyệt</p></div><span class="pill">FREE • BETA</span></header>
+<main><section class="panel"><h2>Tạo video</h2><label for="prompt">Lời thuyết minh (mỗi dòng một phân cảnh)</label><textarea id="prompt">Việt Nam sở hữu vùng biển rộng lớn, với những hòn đảo tuyệt đẹp.
+Dưới làn nước xanh là các rạn san hô và vô số loài sinh vật biển.
+Biển đảo mang đến nguồn lợi thủy sản, du lịch và giao thông vận tải.
+Tuy nhiên, rác thải và khai thác quá mức đang gây áp lực cho đại dương.
+Hãy chung tay gìn giữ môi trường và tài nguyên biển đảo Việt Nam.</textarea>
+<label for="ratio">Tỉ lệ khung hình</label><select id="ratio"><option value="16:9">16:9 • Video bài giảng Full HD</option><option value="9:16">9:16 • Facebook Reels</option><option value="1:1">1:1 • Video vuông</option></select>
 <label for="duration">Thời lượng mỗi cảnh (giây)</label><input id="duration" type="number" min="2" max="15" value="5">
-<label for="palette">Phong cách màu</label><select id="palette"><option value="blue">Xanh hiện đại</option><option value="purple">Tím sáng tạo</option><option value="green">Xanh thiên nhiên</option></select>
+<label for="sceneStyle">Chủ đề mô hình</label><select id="sceneStyle"><option value="ocean">Biển đảo – san hô – tài nguyên</option><option value="forest">Rừng nhiệt đới và sinh vật</option></select><label for="palette">Phong cách màu</label><select id="palette"><option value="green">Xanh biển dịu – giáo dục</option><option value="blue">Xanh hiện đại</option><option value="purple">Tím sáng tạo</option></select>
 <label for="voice">Giọng đọc miễn phí (giọng có sẵn trên trình duyệt)</label>
 <select id="voice"><option value="">Đang tải giọng đọc...</option></select>
 <label for="rate">Tốc độ đọc: <span id="rateLabel">1.0×</span></label>
@@ -23,7 +25,7 @@ Mỗi chúng ta hãy chung tay bảo vệ đa dạng sinh học.</textarea>
 <div class="actions"><button type="button" class="secondary" id="testVoice">🔊 Nghe thử giọng</button><button type="button" class="secondary" id="stopVoice">■ Dừng đọc</button></div>
 <p class="note" id="voiceNote">Dùng SpeechSynthesis của thiết bị, không cần API hoặc thẻ thanh toán. Giọng có sẵn tùy trình duyệt/hệ điều hành. Giọng nghe thử chưa được ghép vào tệp video xuất.</p>
 <div class="actions"><button id="preview">▶ Xem trước</button><button id="export" class="secondary">↓ Xuất video</button></div>
-<p class="status" id="status" role="status"></p><p class="note">Phiên bản này tạo chuyển động chữ và hình khối trực tiếp trên Canvas. File đầu ra là WebM hoặc định dạng được trình duyệt hỗ trợ. Chưa tích hợp AI, MP4 chuẩn và tự động đăng Facebook. Giọng đọc miễn phí dùng để nghe thử và xem trước; tệp video xuất hiện chưa có giọng đọc.</p>
+<p class="status" id="status" role="status"></p><p class="note">Phiên bản đang dùng mô hình cảnh quan 2.5D vẽ bằng Canvas, chuyển động các đối tượng theo từng cảnh. Đây chưa phải mô hình 3D thực. File đầu ra là WebM hoặc định dạng được trình duyệt hỗ trợ. Chưa tích hợp AI, MP4 chuẩn và tự động đăng Facebook. Giọng đọc miễn phí dùng để nghe thử và xem trước; tệp video xuất hiện chưa có giọng đọc.</p>
 </section><section class="panel"><div id="stage"><canvas id="canvas"></canvas></div><p class="note" style="text-align:center">Giữ tab mở trong lúc xuất video. Không đưa token Facebook vào mã nguồn phía trình duyệt.</p></section></main></div>
 <script>
 const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d');
@@ -54,17 +56,68 @@ $('stopVoice').onclick=()=>{if(hasSpeech)window.speechSynthesis.cancel()};
 if(hasSpeech){refreshVoices();window.speechSynthesis.onvoiceschanged=refreshVoices}else refreshVoices();
 
 const colors={blue:['#081f45','#316bea','#72daff'],purple:['#1c103d','#8853f5','#ffc3f6'],green:['#062e2a','#10a57b','#c9ff93']};
-function settings(){const [w,h]=$('ratio').value.split(':').map(Number); const height=720;return {width:Math.round(height*w/h),height,scenes:$('prompt').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,30),duration:Math.min(15,Math.max(2,Number($('duration').value)||5)),palette:colors[$('palette').value]};}
+function settings(){const [w,h]=$('ratio').value.split(':').map(Number); const height=1080;return {width:Math.round(height*w/h),height,scenes:$('prompt').value.split('\n').map(x=>x.trim()).filter(Boolean).slice(0,30),duration:Math.min(15,Math.max(2,Number($('duration').value)||5)),palette:colors[$('palette').value],sceneStyle:$('sceneStyle').value};}
 function resize(s){canvas.width=s.width;canvas.height=s.height;}
 function textLines(t,max){const words=t.split(/\s+/),lines=[];let line='';for(const word of words){const candidate=(line+' '+word).trim();if(ctx.measureText(candidate).width>max&&line){lines.push(line);line=word;}else line=candidate;}if(line)lines.push(line);return lines;}
-function render(time,s){const {width:w,height:h,scenes,duration,palette:p}=s;const idx=Math.min(scenes.length-1,Math.floor(time/duration));const local=(time-idx*duration)/duration;const ease=1-Math.pow(1-Math.min(1,local*4),3);
-const grad=ctx.createLinearGradient(0,0,w,h);grad.addColorStop(0,p[0]);grad.addColorStop(1,p[1]);ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
-for(let i=0;i<14;i++){const a=i*2.4+time*.36;const x=w*(.5+.45*Math.sin(a*.7+i));const y=h*(.5+.48*Math.cos(a*.65+i));const r=14+(i%5)*15;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=p[2]+'24';ctx.fill();}
-ctx.save();ctx.translate(w/2,h/2);ctx.globalAlpha=Math.min(1,local*7, (1-local)*9);ctx.translate(0,(1-ease)*55);
-ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='bold '+Math.max(27,Math.floor(w/15))+'px system-ui';ctx.shadowColor='#0009';ctx.shadowBlur=13;
-const lines=textLines(scenes[idx]||'Nhập nội dung để tạo video',w*.8);const lineH=Math.max(40,w/12);lines.forEach((line,i)=>ctx.fillText(line,0,(i-(lines.length-1)/2)*lineH));
-ctx.restore();ctx.fillStyle=p[2];ctx.fillRect(0,h-9,w*((idx+Math.min(1,local))/scenes.length),9);
-ctx.font='bold 16px system-ui';ctx.fillStyle='#ffffffb0';ctx.textAlign='center';ctx.fillText('MOTION STUDIO',w/2,h-36);}
+
+function poly(points,color){ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();ctx.fill();}
+function ellipse(x,y,rx,ry,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.ellipse(x,y,Math.max(1,rx),Math.max(1,ry),0,0,Math.PI*2);ctx.fill();}
+function line(x1,y1,x2,y2,color,width=2){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();}
+function coral(x,y,size,color,t){line(x,y,x,y-size,color,3);for(let j=0;j<3;j++){const dy=size*(.35+j*.18),sway=Math.sin(t*1.8+x+j)*1.5;line(x,y-dy,x+(j%2?-1:1)*size*.38+sway,y-dy-size*.26,color,2.6);}}
+function fish(x,y,scale,color,t){ctx.save();ctx.translate(x,y+Math.sin(t*2+x*.02)*2);ctx.scale(scale,scale);ellipse(0,0,11,5,color);poly([[-8,0],[-19,-7],[-19,7]],color);ellipse(6,-1,1,1,'#213b42');ctx.restore();}
+function palm(x,y,size,t){line(x,y,x-4*size,y-48*size,'#8a6847',8*size);ellipse(x-4*size,y-48*size,12*size,6*size,'#6b9c60');for(let j=0;j<7;j++){const a=j*Math.PI*2/7+t*.03;const px=x-4*size+Math.cos(a)*29*size,py=y-48*size+Math.sin(a)*13*size+10*size;line(x-4*size,y-48*size,px,py,'#43875f',7*size);}}
+function boat(x,y,t){ctx.save();ctx.translate(x+Math.sin(t)*8,y+Math.cos(t*2)*3);poly([[-25,4],[25,4],[17,15],[-14,15]],'#d58b5a');poly([[-4,4],[-4,-20],[13,-20],[15,4]],'#fcfcf4');line(-5,-25,-5,4,'#516579',2);ctx.restore();}
+function oilRig(x,y,t){for(let v of [-18,18])line(x+v,y,x+v*.6,y-75,'#b8894a',4);poly([[x-31,y-77],[x+32,y-77],[x+32,y-66],[x-31,y-66]],'#e5af46');line(x+20,y-77,x+20,y-106,'#806f58',3);line(x+20,y-106,x+37,y-106,'#806f58',3);}
+function island(time,s,scene){
+ const w=960,h=540;ctx.save();ctx.translate(w*.5,h*.56);
+ const sx=1,sy=1;
+ ellipse(0,147,320,38,'#a9c3bba0');
+ // Layered miniature diorama
+ ellipse(0,105,318,118,'#857450');poly([[-318,104],[-301,154],[-260,192],[258,192],[301,154],[318,104]],'#877550');
+ ellipse(0,104,318,118,'#e6ce92');ellipse(0,91,295,103,'#88cbd3');ellipse(0,75,260,78,'#a1e0e1');
+ // shallow sea glints
+ for(let k=0;k<8;k++)ellipse(-205+k*57,76+Math.sin(k*3)*22,17,2,'#e2fbf1a6');
+ // rocks and palms at rear
+ ellipse(-39,-6,95,32,'#b6c998');ellipse(-54,-15,53,42,'#8aa27e');ellipse(-102,-21,31,31,'#9b8c6e');ellipse(-16,-17,39,35,'#8c9982');
+ palm(-48,-13,1.15,time);palm(0,-4,.9,time+.4);palm(-100,-8,.78,time+1);
+ // coral reef
+ for(let i=0;i<28;i++){
+  const x=-249+(i*73)%510,y=63+(i*37)%102;
+  if((x/285)**2+((y-90)/105)**2>0.85)continue;
+  ellipse(x,y+5,12,4,'#719a86');coral(x,y,10+(i%4)*5,['#8faab2','#eaa480','#ce8676','#648e89'][i%4],time);
+ }
+ // fish movements
+ for(let i=0;i<13;i++){const x=-210+((i*43+time*(8+i%3*3))%450),y=49+(i*19)%113;fish(x,y,.66+(i%3)*.14,['#d77e48','#eeae58','#789f9d'][i%3],time);}
+ // scene-dependent elements
+ const text=scene.toLowerCase();const pollution=/rác|ô nhiễm|khai thác quá|thách thức|áp lực/.test(text);
+ const resources=/tài nguyên|dầu|thủy sản|khoáng sản|nguồn lợi|giao thông|du lịch/.test(text);
+ if(resources){boat(188,14,time);oilRig(214,85,time);}
+ if(pollution){for(let i=0;i<9;i++){const x=-210+i*47;poly([[x,123],[x+9,120],[x+15,129],[x+4,134]],i%2?'#e17e67':'#c2c9c1');}}
+ if(/bảo vệ|gìn giữ|chung tay/.test(text)){for(let i=0;i<4;i++){ellipse(160+i*12,-4-i*6,24,12,'#58986b');}}
+ if(s.sceneStyle==='forest'){for(let i=0;i<8;i++)palm(-200+i*55,70+(i%3)*25,.55,time+i);}
+ ctx.restore();
+}
+function wrapCaption(text,maxWidth){ctx.font='19px system-ui';const words=text.split(/\\s+/),lines=[];let row='';for(const word of words){const next=(row+' '+word).trim();if(ctx.measureText(next).width>maxWidth&&row){lines.push(row);row=word;}else row=next;}if(row)lines.push(row);return lines.slice(0,3);}
+function render(time,s){
+ const outputW=s.width,outputH=s.height;
+ ctx.clearRect(0,0,outputW,outputH);ctx.save();
+ const k=Math.min(outputW/960,outputH/540);ctx.translate((outputW-960*k)/2,(outputH-540*k)/2);ctx.scale(k,k);
+ ctx.fillStyle='#e5f1ed';ctx.fillRect(-500,-500,1960,1600);
+ const count=s.scenes.length||1,idx=Math.min(count-1,Math.floor(time/s.duration)),part=(time-idx*s.duration)/s.duration;
+ const title=s.scenes[idx]||'Môi trường và tài nguyên biển đảo';
+ const thematic=[['MÔI TRƯỜNG BIỂN ĐẢO','Khám phá biển đảo Việt Nam'],['ĐA DẠNG SINH HỌC','Một thế giới giàu sức sống'],['GIÁ TRỊ CỦA BIỂN','Tài nguyên và phát triển'],['NHẬN DIỆN THÁCH THỨC','Những sức ép lên môi trường'],['CHUNG TAY HÀNH ĐỘNG','Gìn giữ biển xanh']];
+ const headings=thematic[idx%thematic.length];ctx.textAlign='left';ctx.shadowBlur=0;ctx.fillStyle='#164e43';ctx.font='bold 14px system-ui';ctx.fillText(headings[0],35,33);
+ ctx.font='bold 31px system-ui';ctx.fillText(headings[1],35,71);
+ island(time,s,title);
+ // tags
+ const tags=/rác|ô nhiễm|áp lực/.test(title.toLowerCase())?['Rác thải nhựa','Khai thác quá mức']:['Hệ sinh thái biển','San hô','Sinh vật biển'];
+ ctx.font='14px system-ui';let x=36;for(const tag of tags){const tw=ctx.measureText(tag).width+24;ctx.fillStyle='#f9f8e7';ctx.fillRect(x,444,tw,29);ctx.fillStyle='#405e4e';ctx.fillText(tag,x+12,463);x+=tw+10;}
+ const captions=wrapCaption(title,810);ctx.font='19px system-ui';let maxW=0;for(const l of captions)maxW=Math.max(maxW,ctx.measureText(l).width);
+ const barW=maxW+40,barH=captions.length*27+15,barY=504-barH;ctx.fillStyle='#144f42';ctx.beginPath();ctx.roundRect(480-barW/2,barY,barW,barH,7);ctx.fill();
+ ctx.fillStyle='#fff';ctx.textAlign='center';captions.forEach((t,i)=>ctx.fillText(t,480,barY+28+i*27));
+ ctx.fillStyle='#246355';ctx.fillRect(0,0,960*((idx+part)/count),4);
+ ctx.restore();
+}
 function getType(){return ['video/mp4;codecs=avc1.42E01E','video/webm;codecs=vp9','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));}
 async function play(exporting){if(playing)return;const s=settings();if(!s.scenes.length){$('status').textContent='Hãy nhập nội dung';return;}resize(s);playing=true;$('preview').disabled=$('export').disabled=true;$('status').textContent=exporting?'Đang ghi video...':'Đang xem trước...';
 let rec=null,chunks=[],mime;try{if(exporting){if(!canvas.captureStream||!window.MediaRecorder)throw Error('Trình duyệt không hỗ trợ ghi video Canvas');mime=getType();if(!mime)throw Error('Không có codec ghi video phù hợp');rec=new MediaRecorder(canvas.captureStream(30),{mimeType:mime,videoBitsPerSecond:4000000});rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};rec.start(500);}
@@ -76,5 +129,5 @@ await new Promise(resolve=>{function tick(now){
 }requestAnimationFrame(tick)});
 if(rec){await new Promise(resolve=>{rec.onstop=resolve;rec.stop()});const blob=new Blob(chunks,{type:mime});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='motion-studio-'+Date.now()+(mime.includes('mp4')?'.mp4':'.webm');document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
 $('status').textContent=exporting?'Đã xuất video thành công.':'Đã xem trước xong.';}catch(e){$('status').textContent='Lỗi: '+e.message;}finally{if(hasSpeech)window.speechSynthesis.cancel();playing=false;$('preview').disabled=$('export').disabled=false;}}
-$('preview').onclick=()=>play(false);$('export').onclick=()=>play(true);resize(settings());render(0,settings());$('ratio').onchange=()=>{if(!playing){resize(settings());render(0,settings())}};$('palette').onchange=()=>{if(!playing)render(0,settings())};
+$('preview').onclick=()=>play(false);$('export').onclick=()=>play(true);resize(settings());render(0,settings());$('sceneStyle').onchange=()=>{if(!playing)render(0,settings())};$('ratio').onchange=()=>{if(!playing){resize(settings());render(0,settings())}};$('palette').onchange=()=>{if(!playing)render(0,settings())};
 </script></body></html>
