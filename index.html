@@ -4,7 +4,7 @@
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0b1220;color:#eaf1ff;font:15px system-ui,-apple-system,Arial,sans-serif}header{display:flex;justify-content:space-between;align-items:center;padding:16px 28px;background:#141f34;border-bottom:1px solid #2a3b55}h1{font-size:22px;margin:0}header small{color:#92aac6}.badge{font-size:12px;color:#b9ffe3;background:#105843;padding:7px 12px;border-radius:20px}.app{max-width:1540px;margin:auto;padding:22px;display:grid;grid-template-columns:minmax(320px,420px) minmax(0,1fr);gap:20px}.panel{background:#152238;border:1px solid #2e405a;border-radius:17px;padding:21px}.panel h2{font-size:17px;margin:0 0 13px}label{display:block;margin:13px 0 7px;font-size:13px;color:#bfd0e7}input,select,textarea{font:inherit;width:100%;background:#0c182b;color:#eef5ff;border:1px solid #3c516d;border-radius:9px;padding:11px}textarea{resize:vertical;min-height:150px}input[type=range]{padding:0}input[type=file]{font-size:12px}button{border:0;background:#526bff;color:white;font-weight:700;padding:11px 15px;border-radius:9px;cursor:pointer}button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#354e70}.buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.hint{color:#90a6c4;font-size:12px;line-height:1.65}.success{color:#96e9c0}.warn{color:#ffd596}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}#stage{width:100%;background:#d9eeed;border-radius:12px;overflow:hidden;position:relative;aspect-ratio:16/9}#stage canvas{width:100%;height:100%;display:block}#overlays{pointer-events:none;position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:3% 4%;color:#1b5a59}#title{font-size:clamp(14px,2.35vw,32px);font-weight:800;max-width:88%;text-shadow:0 1px 0 #fff9}#subtitle{align-self:center;color:#fff;text-align:center;background:#0e5146e8;border-radius:8px;font-size:clamp(12px,1.25vw,20px);line-height:1.4;max-width:88%;padding:7px 18px;min-height:25px}.scene-strip{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}.scene-chip{font-size:12px;background:#223c5a;border:1px solid #49617b;padding:8px 10px;border-radius:8px}.scene-chip.active{background:#3758a1;border-color:#8caaff}#status{min-height:22px;margin:12px 0;color:#afe4cc}.divider{border-top:1px solid #30425a;margin:16px 0}.muted{color:#8da4c0}#downloadLink{display:none;margin-top:12px;color:#95cbff}.legend{font-size:12px;color:#b0c7de;margin-top:12px}footer{max-width:1500px;margin:20px auto;color:#96a8c1;font-size:12px;padding:0 22px 20px}@media(max-width:900px){.app{grid-template-columns:1fr}#title{font-size:20px}#subtitle{font-size:14px}} 
 </style></head><body>
-<header><div><h1>✦ AI Motion Studio 3D</h1><small>Motion Graphic giáo dục · Mô hình low-poly · Không n8n / Không API trả phí</small></div><span class="badge">FREE · V0.4.4 EXPORT FIX</span></header>
+<header><div><h1>✦ AI Motion Studio 3D</h1><small>Motion Graphic giáo dục · Mô hình low-poly · Không n8n / Không API trả phí</small></div><span class="badge">FREE · V0.4.5 VOICE PRIORITY</span></header>
 <div class="app"><section class="panel"><h2>1 · Nhập yêu cầu tạo video</h2>
 <label for="topic">Nội dung / chủ đề (áp dụng nhiều lĩnh vực)</label><textarea id="topic">Môi trường và tài nguyên biển đảo Việt Nam. Giới thiệu vùng biển, đảo và các hệ sinh thái đặc sắc. Những loài sinh vật biển, san hô và nguồn lợi thủy sản. Hoạt động khai thác, giao thông và du lịch biển. Tác động của rác thải nhựa và ô nhiễm. Bảo vệ tài nguyên và hệ sinh thái biển đảo.</textarea>
 <div class="row"><div><label for="sceneCount">Số lượng cảnh</label><input type="number" min="2" max="16" value="6" id="sceneCount"></div><div><label for="seconds">Thời lượng mỗi cảnh</label><select id="seconds"><option value="6">6 giây</option><option value="8" selected>8 giây</option><option value="10">10 giây</option><option value="12">12 giây</option></select></div></div>
@@ -13,7 +13,7 @@
 <label for="voice">Chọn giọng đọc sẵn trên thiết bị</label><select id="voice"><option>Đang tìm giọng...</option></select>
 <label for="rate">Tốc độ đọc: <span id="rateDisplay">1.0×</span></label><input id="rate" type="range" min="0.7" max="1.3" value="1" step="0.1">
 <div class="buttons"><button id="testVoice" class="secondary">🔊 Nghe thử</button><button id="stopVoice" class="secondary">■ Dừng giọng</button></div>
-<p class="hint">Giọng Web Speech miễn phí, phụ thuộc giọng được cài trên thiết bị. Âm thanh đọc trực tiếp này dùng khi xem trước, không tự thu được vào MP4.</p>
+<p class="hint">Khi chưa tải tệp âm thanh, Xem trước dùng giọng Web Speech có sẵn. Khi tải MP3/WAV, ứng dụng ưu tiên phát và ghép tệp âm thanh đó; không dùng giọng Web Speech.</p>
 <label for="audio">Tùy chọn: tải lời đọc MP3/WAV để ghép vào video xuất</label><input id="audio" type="file" accept=".mp3,.wav,.m4a,.ogg,.aac,audio/*"><div class="buttons"><button id="playAudio" type="button" class="secondary" disabled>▶ Nghe tệp đã tải lên</button><button id="clearAudio" type="button" class="secondary">Xóa tệp</button></div><p class="hint" id="audioStatus">Chưa chọn tệp âm thanh. Chọn MP3 hoặc WAV từ máy tính.</p><p class="hint">Nếu có file lời đọc, ứng dụng sẽ ghi âm thanh đó vào video. Để ghép đúng thời lượng, hãy dùng file khớp với tổng thời gian video.</p>
 <div class="divider"></div><h2>3 · Tạo và xuất video</h2>
 <div class="buttons"><button id="generate">✦ Tạo phân cảnh 3D</button><button id="preview" class="secondary">▶ Xem trước</button><button id="export" class="secondary">↓ Xuất video</button><button id="stopPreview" class="secondary" disabled>■ Dừng</button></div>
@@ -140,7 +140,7 @@ $('audio').addEventListener('change',()=>{
  if(!f){$('audioStatus').textContent='Chưa chọn tệp âm thanh';return}
  if(!/\.(mp3|wav|m4a|ogg|aac)$/i.test(f.name)&&!f.type.startsWith('audio/')){$('audioStatus').textContent='Tệp không hợp lệ. Hãy chọn MP3/WAV/M4A/OGG';$('playAudio').disabled=true;return}
  chosenAudioUrl=URL.createObjectURL(f);
- $('audioStatus').textContent='Đã nhận: '+f.name+' ('+(f.size/1048576).toFixed(1)+' MB)';
+ $('audioStatus').textContent='Đang ưu tiên giọng tải lên: '+f.name+' ('+(f.size/1048576).toFixed(1)+' MB). Xem trước và xuất video sẽ dùng tệp này, không dùng Web Speech.';
 });
 $('playAudio').onclick=()=>{if(!chosenAudioUrl)return;stopTrial();trialAudio=new Audio(chosenAudioUrl);trialAudio.play().catch(e=>$('audioStatus').textContent='Không phát được âm thanh: '+e.message)};
 $('clearAudio').onclick=()=>{stopTrial();$('audio').value='';if(chosenAudioUrl)URL.revokeObjectURL(chosenAudioUrl);chosenAudioUrl=null;$('playAudio').disabled=true;$('audioStatus').textContent='Đã xóa tệp âm thanh'};
@@ -154,20 +154,23 @@ $('stopPreview').onclick=()=>{cancelRun=true;$('status').textContent='Đang dừ
 async function run(exporting){if(state.running)return;if(!rebuild())return;cancelRun=false;state.running=true;$('preview').disabled=$('export').disabled=$('generate').disabled=true;$('stopPreview').disabled=false;$('progress').value=0;
 const s=state.opts,duration=s.count*s.duration;$('status').textContent=exporting?'Đang dựng và xuất video...':'Đang xem trước...';
 let rec=null,chunks=[],audioElement=null,audioCtx=null,stream=null,track=null;try{
- resize();const file=$('audio').files[0];let type='';
+ resize();stopTrial();const file=$('audio').files[0];let type='';
+ if(file&&speech)speechSynthesis.cancel();
+ if(file){audioElement=new Audio(chosenAudioUrl||URL.createObjectURL(file));audioElement.preload='auto';await new Promise((resolve,reject)=>{audioElement.onloadedmetadata=resolve;audioElement.onerror=()=>reject(new Error('Không giải mã được tệp âm thanh đã chọn'));audioElement.load()});$('status').textContent='Đang dùng giọng tải lên: '+file.name;}
  if(exporting){
  if(!window.MediaRecorder||!overlayCanvas.captureStream)throw Error('Trình duyệt không hỗ trợ xuất video.');
  type=['video/mp4;codecs=avc1.42E01E','video/webm;codecs=vp9','video/webm'].find(v=>MediaRecorder.isTypeSupported(v));if(!type)throw Error('Thiết bị không hỗ trợ codec video.');
  stream=overlayCanvas.captureStream(30);
- if(file){audioElement=new Audio(URL.createObjectURL(file));audioCtx=new AudioContext();const src=audioCtx.createMediaElementSource(audioElement),dest=audioCtx.createMediaStreamDestination();src.connect(dest);for(const at of dest.stream.getAudioTracks())stream.addTrack(at);await audioCtx.resume();await audioElement.play();}
+ if(file){audioCtx=new AudioContext();const src=audioCtx.createMediaElementSource(audioElement),dest=audioCtx.createMediaStreamDestination();src.connect(dest);src.connect(audioCtx.destination);for(const at of dest.stream.getAudioTracks())stream.addTrack(at);await audioCtx.resume();}
  rec=new MediaRecorder(stream,{mimeType:type,videoBitsPerSecond:3000000});rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};rec.start(500);
  }
+ if(audioElement)await audioElement.play();
  let start=performance.now(),old=-1,lastUpdate=0;
  await new Promise((resolve,reject)=>{function tick(now){
   if(cancelRun){resolve();return;}
   try{
    const t=Math.min(duration,(now-start)/1000),i=Math.min(s.count-1,Math.floor(t/s.duration));
-   if(i!==old){if(!exporting)talk(state.scenes[i]);old=i;}
+   if(i!==old){if(!exporting&&!file)talk(state.scenes[i]);old=i;}
    show(i,t);if(exporting)composite(i,t);
    if(now-lastUpdate>200){$('progress').value=Math.min(100,t/duration*100);$('progressLabel').textContent='Cảnh '+(i+1)+'/'+s.count+' · '+Math.floor(t)+'/'+duration+' giây';lastUpdate=now;}
    if(t<duration)requestAnimationFrame(tick);else resolve();
@@ -176,7 +179,7 @@ let rec=null,chunks=[],audioElement=null,audioCtx=null,stream=null,track=null;tr
  if(cancelRun){if(rec&&rec.state!=='inactive'){rec.stop();await new Promise(resolve=>rec.onstop=resolve)}$('status').textContent='Đã dừng. Bạn có thể bấm Xem trước lại.';return;}
  if(rec){await new Promise(resolve=>{rec.onstop=resolve;rec.stop()});const blob=new Blob(chunks,{type}),url=URL.createObjectURL(blob),link=$('downloadLink');link.href=url;link.download='motion-studio-3d-'+Date.now()+(type.includes('mp4')?'.mp4':'.webm');link.style.display='block';link.textContent='⬇ Tải video '+Math.round(blob.size/1024/1024*10)/10+' MB';link.onclick=()=>setTimeout(()=>URL.revokeObjectURL(url),300000);link.click();}
  $('status').textContent=exporting?'Đã dựng xong! '+(file?'Đã ghép file âm thanh.':'Video chưa có giọng đọc — muốn có âm thanh, chọn file MP3/WAV trước khi xuất.'):'Đã xem trước xong.';
- }catch(e){$('status').textContent='Không thể xem trước hoặc xuất video: '+e.message;console.error('AI Motion Studio:',e);}finally{if(speech)speechSynthesis.cancel();if(audioElement){audioElement.pause();URL.revokeObjectURL(audioElement.src)}if(audioCtx)audioCtx.close().catch(()=>{});if(stream)stream.getTracks().forEach(t=>t.stop());state.running=false;$('preview').disabled=$('export').disabled=$('generate').disabled=false;$('stopPreview').disabled=true;}}
+ }catch(e){$('status').textContent='Không thể xem trước hoặc xuất video: '+e.message;console.error('AI Motion Studio:',e);}finally{if(speech)speechSynthesis.cancel();if(audioElement){audioElement.pause();if(!chosenAudioUrl)URL.revokeObjectURL(audioElement.src)}if(audioCtx)audioCtx.close().catch(()=>{});if(stream)stream.getTracks().forEach(t=>t.stop());state.running=false;$('preview').disabled=$('export').disabled=$('generate').disabled=false;$('stopPreview').disabled=true;}}
 $('generate').onclick=()=>{try{if(rebuild())resize()}catch(e){$('status').textContent='Lỗi dựng mô hình: '+e.message;console.error(e)}};
 $('preview').onclick=()=>run(false).catch(e=>{$('status').textContent='Lỗi xem trước: '+e.message;console.error(e)});
 $('export').onclick=()=>run(true).catch(e=>{$('status').textContent='Lỗi xuất video: '+e.message;console.error(e)});
