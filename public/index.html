@@ -52,12 +52,27 @@ footer{display:none}
 @media(max-width:960px){.app{grid-template-columns:1fr;padding:12px}.app>.panel:first-child{max-height:none;overflow:visible}.app>.panel:nth-child(2){position:static;min-height:0}}
 @media(max-width:520px){header{padding:12px}header small{font-size:10px}h1{font-size:19px}.badge{font-size:10px}.panel{padding:14px}.summary-note{display:none}.buttons{gap:6px}}
 
+
+/* 0.6.1: nền trắng hồng & tỉ lệ video responsive */
+body{background:radial-gradient(ellipse at 8% 0%,#ffe7ef 0,transparent 43%),linear-gradient(130deg,#fffefe,#fff3f7 62%,#ffeff5);color:#36454d}
+header{background:#fffdfef5;border-bottom:1px solid #f2d9e4}
+.panel{background:#fff;border-color:#f1dfe6;box-shadow:0 8px 28px #ac6c8722}
+input,select,textarea{background:#fffbfd;border-color:#eccfdc}
+input:focus,select:focus,textarea:focus{border-color:#db7298;box-shadow:0 0 0 3px #f8c9dc65}
+#stopPreview,#stopPreview.secondary{background:#df4054!important;color:#fff!important}
+#stopPreview:hover:not(:disabled){background:#c72840!important}
+#stage.portrait{width:min(100%,390px);margin-inline:auto;aspect-ratio:9 / 16!important}
+#stage.portrait #overlays{padding:7% 6% 8%}
+#stage.portrait #title{font-size:clamp(15px,2.1vw,24px);line-height:1.25;max-width:100%;overflow-wrap:anywhere}
+#stage.portrait #subtitle{font-size:clamp(12px,1.1vw,17px);max-width:100%;line-height:1.45;padding:8px 11px;overflow-wrap:anywhere}
+#stage canvas{width:100%!important;height:100%!important;object-fit:fill}
+@media(max-width:600px){#stage.portrait{width:min(100%,330px)}}
 </style></head><body>
-<header><div><h1>✦ AI Motion Studio 3D</h1><small>Motion Graphic giáo dục · Mô hình low-poly</small></div><span class="badge">GIÁO DỤC · V0.6 UI</span></header>
+<header><div><h1>✦ AI Motion Studio 3D</h1><small>Motion Graphic giáo dục · Mô hình low-poly</small></div><span class="badge">GIÁO DỤC · V0.6.1</span></header>
 <div class="app"><section class="panel"><h2>Tạo video mới</h2>
 <label for="videoTitle">Tiêu đề video (hiển thị xuyên suốt)</label><input id="videoTitle" type="text" maxlength="160" value="Môi trường và tài nguyên biển đảo Việt Nam" placeholder="Nhập tiêu đề video"><label for="topic">Nội dung video</label><textarea id="topic">Môi trường và tài nguyên biển đảo Việt Nam. Giới thiệu vùng biển, đảo và các hệ sinh thái đặc sắc. Những loài sinh vật biển, san hô và nguồn lợi thủy sản. Hoạt động khai thác, giao thông và du lịch biển. Tác động của rác thải nhựa và ô nhiễm. Bảo vệ tài nguyên và hệ sinh thái biển đảo.</textarea>
 <div class="row"><div><label for="sceneCount">Số lượng cảnh</label><input type="number" min="2" max="16" value="6" id="sceneCount"></div><div><label for="seconds">Thời lượng mỗi cảnh</label><select id="seconds"><option value="6">6 giây</option><option value="8" selected>8 giây</option><option value="10">10 giây</option><option value="12">12 giây</option></select></div></div>
-<div class="row"><div><label for="ratio">Tỉ lệ khung hình</label><select id="ratio"><option value="16:9" selected>16:9 · Giáo dục</option><option value="9:16">9:16 · Reels</option><option value="1:1">1:1 · Vuông</option></select></div><div><label for="theme">Phong cách cảnh 3D</label><select id="theme"><option value="auto">Tự phân tích riêng từng cảnh</option><option value="ocean">Biển đảo</option><option value="nature">Thiên nhiên</option><option value="city">Đô thị / xã hội</option><option value="space">Vũ trụ</option><option value="science">Khoa học</option><option value="tech">Công nghệ</option><option value="history">Lịch sử</option></select></div></div>
+<div class="row"><div><label for="ratio">Tỉ lệ khung hình</label><select id="ratio"><option value="16:9" selected>16:9 · Giáo dục</option><option value="9:16">9:16 · Reels</option></select></div><div><label for="theme">Phong cách cảnh 3D</label><select id="theme"><option value="auto">Tự phân tích riêng từng cảnh</option><option value="ocean">Biển đảo</option><option value="nature">Thiên nhiên</option><option value="city">Đô thị / xã hội</option><option value="space">Vũ trụ</option><option value="science">Khoa học</option><option value="tech">Công nghệ</option><option value="history">Lịch sử</option></select></div></div>
 <details class="voice-panel"><summary><span>🎙️ Giọng đọc & âm thanh</span><span class="summary-note">Chọn giọng / tải MP3 / phụ đề SRT</span></summary><div class="voice-content">
 <label for="voice">Chọn giọng đọc sẵn trên thiết bị</label><select id="voice"><option>Đang tìm giọng...</option></select>
 <label for="rate">Tốc độ đọc: <span id="rateDisplay">1.0×</span></label><input id="rate" type="range" min="0.7" max="1.3" value="1" step="0.1">
@@ -197,7 +212,17 @@ function show(i,t){if(!state.scenes.length)return;
  if(lastScene!==i){while(world.children.length)world.remove(world.children[0]);moving.length=0;makePlan(state.plans[i]);lastScene=i;}const a=t;for(const m of moving){if(m.kind==='spin')m.o.rotation.y=a*.5;else if(m.kind==='spinZ')m.o.rotation.z=a*.55;else if(m.kind==='robot')m.o.rotation.y=Math.sin(a*.65)*.17;else if(m.kind==='bob')m.o.position.y=.30+Math.sin(a*1.8)*.10;else if(m.kind==='swim'){m.o.position.x=m.x+Math.sin(a*.8+m.delay)*.7;m.o.position.y=.24+Math.cos(a*1.5+m.delay)*.10;}}world.rotation.y=Math.sin(a*.17)*.09;camera.position.set(12+Math.sin(a*.2)*1.2,11,15);camera.lookAt(0,0,0);renderer.render(scene,camera);
 $('title').textContent=state.opts?.videoTitle||'';
 $('subtitle').textContent=state.scenes[i];[...$('strip').children].forEach((b,j)=>b.classList.toggle('active',i===j));}
-function resize(){const r=state.opts?.ratio||16/9;const W=r>1.2?960:r<.75?480:720,H=Math.round(W/r);renderer.setSize(W,H,false);camera.left=-9*r/(16/9);camera.right=9*r/(16/9);camera.top=5.0625;camera.bottom=-5.0625;camera.updateProjectionMatrix();stage.style.aspectRatio=W+'/'+H;show(Math.max(0,lastScene),0)}
+function resize(){
+ const portrait=$('ratio').value==='9:16';
+ const W=portrait?540:960,H=portrait?960:540,r=W/H;
+ renderer.setSize(W,H,false);
+ const halfHeight=portrait?10.7:5.0625;
+ camera.left=-halfHeight*r;camera.right=halfHeight*r;
+ camera.top=halfHeight;camera.bottom=-halfHeight;camera.updateProjectionMatrix();
+ stage.style.aspectRatio=W+'/'+H;
+ stage.classList.toggle('portrait',portrait);
+ show(Math.max(0,lastScene),0);
+}
 const speech=('speechSynthesis' in window&&'SpeechSynthesisUtterance' in window);let voices=[];
 function loadVoices(){voices=speech?speechSynthesis.getVoices():[];const prior=$('voice').value;const list=voices.map((v,i)=>({v,i})).filter(x=>x.v.lang.toLowerCase().startsWith('vi'));const target=list.length?list:voices.map((v,i)=>({v,i}));$('voice').replaceChildren();for(const {v,i} of target)$('voice').add(new Option(v.name+' ('+v.lang+')',i));if(target.length){$('voice').value=[...$('voice').options].some(o=>o.value===prior)?prior:String(target[0].i)}else $('voice').add(new Option('Thiết bị chưa có giọng đọc',''));if(!list.length)$('status').textContent='Chưa phát hiện giọng tiếng Việt trên thiết bị. Có thể cài giọng tiếng Việt trong hệ điều hành.'}
 if(speech){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}else $('voice').replaceChildren(new Option('Trình duyệt không hỗ trợ giọng đọc',''));
@@ -221,7 +246,24 @@ $('theme').addEventListener('change',()=>{if(state.running)return;try{rebuild();
 
 const overlayCanvas=document.createElement('canvas'),out=overlayCanvas.getContext('2d');
 function wrap(text,max,font){out.font=font;const words=text.split(/\s+/),arr=[];let row='';for(const word of words){const next=(row+' '+word).trim();if(out.measureText(next).width>max&&row){arr.push(row);row=word}else row=next}if(row)arr.push(row);return arr.slice(0,3)}
-function composite(i,t){const w=renderer.domElement.width,h=renderer.domElement.height;overlayCanvas.width=w;overlayCanvas.height=h;out.drawImage(renderer.domElement,0,0,w,h);const scale=w/1280;out.font='bold '+Math.round(31*scale)+'px system-ui';out.textAlign='left';out.fillStyle='#195b54';if(state.opts?.videoTitle)out.fillText(state.opts.videoTitle,36*scale,66*scale);const sub=subtitleAt(t,i);const font='bold '+Math.round(25*scale)+'px system-ui';const lines=sub?wrap(sub,w*.83,font):[];out.font=font;const lh=35*scale;const wide=lines.length?Math.max(...lines.map(x=>out.measureText(x).width)):0;const bw=wide+40*scale,bh=lines.length*lh+18*scale;if(lines.length){out.fillStyle='#14584de9';out.beginPath();out.roundRect((w-bw)/2,h-bh-24*scale,bw,bh,9*scale);out.fill();}out.textAlign='center';out.fillStyle='#fff';lines.forEach((line,j)=>out.fillText(line,w/2,h-bh-24*scale+33*scale+j*lh));}
+function composite(i,t){
+ const w=renderer.domElement.width,hh=renderer.domElement.height,portrait=hh>w;
+ overlayCanvas.width=w;overlayCanvas.height=hh;
+ out.drawImage(renderer.domElement,0,0,w,hh);
+ const pad=w*.06,titleText=state.opts?.videoTitle||'';
+ const titleSize=Math.round(portrait?w*.049:w*.032);
+ out.font='bold '+titleSize+'px system-ui';out.fillStyle='#195b54';out.textAlign='left';
+ const titleLines=titleText?wrap(titleText,w-pad*2,out.font).slice(0,3):[];
+ titleLines.forEach((line,j)=>out.fillText(line,pad,(portrait?65:56)+j*titleSize*1.24));
+ const sub=subtitleAt(t,i),size=Math.round(portrait?w*.046:w*.025),font='bold '+size+'px system-ui';
+ const lines=sub?wrap(sub,w*.83,font).slice(0,2):[];
+ if(!lines.length)return;
+ out.font=font;const lh=size*1.42;
+ const widest=Math.max(...lines.map(x=>out.measureText(x).width));
+ const bw=Math.min(w*.92,widest+size*1.8),bh=lines.length*lh+size*.9,by=hh-bh-(portrait?hh*.055:hh*.045);
+ out.fillStyle='#14584de9';out.beginPath();out.roundRect((w-bw)/2,by,bw,bh,Math.max(5,size*.32));out.fill();
+ out.fillStyle='#fff';out.textAlign='center';lines.forEach((line,j)=>out.fillText(line,w/2,by+size*1.38+j*lh));
+}
 let cancelRun=false;
 $('stopPreview').onclick=()=>{cancelRun=true;$('status').textContent='Đang dừng...';if(speech)speechSynthesis.cancel()};
 async function run(exporting){if(state.running)return;if(!rebuild())return;cancelRun=false;state.running=true;$('preview').disabled=$('export').disabled=$('generate').disabled=true;$('stopPreview').disabled=false;$('progress').value=0;
