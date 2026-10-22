@@ -4,7 +4,7 @@
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0b1220;color:#eaf1ff;font:15px system-ui,-apple-system,Arial,sans-serif}header{display:flex;justify-content:space-between;align-items:center;padding:16px 28px;background:#141f34;border-bottom:1px solid #2a3b55}h1{font-size:22px;margin:0}header small{color:#92aac6}.badge{font-size:12px;color:#b9ffe3;background:#105843;padding:7px 12px;border-radius:20px}.app{max-width:1540px;margin:auto;padding:22px;display:grid;grid-template-columns:minmax(320px,420px) minmax(0,1fr);gap:20px}.panel{background:#152238;border:1px solid #2e405a;border-radius:17px;padding:21px}.panel h2{font-size:17px;margin:0 0 13px}label{display:block;margin:13px 0 7px;font-size:13px;color:#bfd0e7}input,select,textarea{font:inherit;width:100%;background:#0c182b;color:#eef5ff;border:1px solid #3c516d;border-radius:9px;padding:11px}textarea{resize:vertical;min-height:150px}input[type=range]{padding:0}input[type=file]{font-size:12px}button{border:0;background:#526bff;color:white;font-weight:700;padding:11px 15px;border-radius:9px;cursor:pointer}button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#354e70}.buttons{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.hint{color:#90a6c4;font-size:12px;line-height:1.65}.success{color:#96e9c0}.warn{color:#ffd596}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}#stage{width:100%;background:#d9eeed;border-radius:12px;overflow:hidden;position:relative;aspect-ratio:16/9}#stage canvas{width:100%;height:100%;display:block}#overlays{pointer-events:none;position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:3% 4%;color:#1b5a59}#title{font-size:clamp(14px,2.35vw,32px);font-weight:800;max-width:88%;text-shadow:0 1px 0 #fff9}#subtitle{align-self:center;color:#fff;text-align:center;background:#0e5146e8;border-radius:8px;font-size:clamp(12px,1.25vw,20px);line-height:1.4;max-width:88%;padding:7px 18px;min-height:25px}.scene-strip{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}.scene-chip{font-size:12px;background:#223c5a;border:1px solid #49617b;padding:8px 10px;border-radius:8px}.scene-chip.active{background:#3758a1;border-color:#8caaff}#status{min-height:22px;margin:12px 0;color:#afe4cc}.divider{border-top:1px solid #30425a;margin:16px 0}.muted{color:#8da4c0}#downloadLink{display:none;margin-top:12px;color:#95cbff}.legend{font-size:12px;color:#b0c7de;margin-top:12px}footer{max-width:1500px;margin:20px auto;color:#96a8c1;font-size:12px;padding:0 22px 20px}@media(max-width:900px){.app{grid-template-columns:1fr}#title{font-size:20px}#subtitle{font-size:14px}} 
 </style></head><body>
-<header><div><h1>✦ AI Motion Studio 3D</h1><small>Motion Graphic giáo dục · Mô hình low-poly · Không n8n / Không API trả phí</small></div><span class="badge">FREE · V0.4.5 VOICE PRIORITY</span></header>
+<header><div><h1>✦ AI Motion Studio 3D</h1><small>Motion Graphic giáo dục · Mô hình low-poly · Không n8n / Không API trả phí</small></div><span class="badge">FREE · V0.5 AUDIO SYNC</span></header>
 <div class="app"><section class="panel"><h2>1 · Nhập yêu cầu tạo video</h2>
 <label for="topic">Nội dung / chủ đề (áp dụng nhiều lĩnh vực)</label><textarea id="topic">Môi trường và tài nguyên biển đảo Việt Nam. Giới thiệu vùng biển, đảo và các hệ sinh thái đặc sắc. Những loài sinh vật biển, san hô và nguồn lợi thủy sản. Hoạt động khai thác, giao thông và du lịch biển. Tác động của rác thải nhựa và ô nhiễm. Bảo vệ tài nguyên và hệ sinh thái biển đảo.</textarea>
 <div class="row"><div><label for="sceneCount">Số lượng cảnh</label><input type="number" min="2" max="16" value="6" id="sceneCount"></div><div><label for="seconds">Thời lượng mỗi cảnh</label><select id="seconds"><option value="6">6 giây</option><option value="8" selected>8 giây</option><option value="10">10 giây</option><option value="12">12 giây</option></select></div></div>
@@ -14,7 +14,7 @@
 <label for="rate">Tốc độ đọc: <span id="rateDisplay">1.0×</span></label><input id="rate" type="range" min="0.7" max="1.3" value="1" step="0.1">
 <div class="buttons"><button id="testVoice" class="secondary">🔊 Nghe thử</button><button id="stopVoice" class="secondary">■ Dừng giọng</button></div>
 <p class="hint">Khi chưa tải tệp âm thanh, Xem trước dùng giọng Web Speech có sẵn. Khi tải MP3/WAV, ứng dụng ưu tiên phát và ghép tệp âm thanh đó; không dùng giọng Web Speech.</p>
-<label for="audio">Tùy chọn: tải lời đọc MP3/WAV để ghép vào video xuất</label><input id="audio" type="file" accept=".mp3,.wav,.m4a,.ogg,.aac,audio/*"><div class="buttons"><button id="playAudio" type="button" class="secondary" disabled>▶ Nghe tệp đã tải lên</button><button id="clearAudio" type="button" class="secondary">Xóa tệp</button></div><p class="hint" id="audioStatus">Chưa chọn tệp âm thanh. Chọn MP3 hoặc WAV từ máy tính.</p><p class="hint">Nếu có file lời đọc, ứng dụng sẽ ghi âm thanh đó vào video. Để ghép đúng thời lượng, hãy dùng file khớp với tổng thời gian video.</p>
+<label for="audio">Tệp lời đọc MP3/WAV (làm đồng hồ chính của video)</label><input id="audio" type="file" accept=".mp3,.wav,.m4a,.ogg,.aac,audio/*"><div class="buttons"><button id="playAudio" type="button" class="secondary" disabled>▶ Nghe tệp đã tải lên</button><button id="clearAudio" type="button" class="secondary">Xóa tệp</button></div><label for="subtitleFile">Phụ đề SRT có timecode (tùy chọn — để đồng bộ chính xác)</label><input id="subtitleFile" type="file" accept=".srt,text/plain"><p class="hint" id="syncStatus">Chỉ có audio: thời điểm hiển thị được ước tính theo độ dài câu. Muốn đồng bộ chính xác, tải thêm file SRT của chính audio đó.</p><p class="hint" id="audioStatus">Chưa chọn tệp âm thanh. Chọn MP3 hoặc WAV từ máy tính.</p><p class="hint">Nếu tải audio, thời lượng video tự chạy theo file; phân cảnh ước lượng theo độ dài nội dung. Có SRT sẽ đồng bộ phụ đề theo timecode chính xác.</p>
 <div class="divider"></div><h2>3 · Tạo và xuất video</h2>
 <div class="buttons"><button id="generate">✦ Tạo phân cảnh 3D</button><button id="preview" class="secondary">▶ Xem trước</button><button id="export" class="secondary">↓ Xuất video</button><button id="stopPreview" class="secondary" disabled>■ Dừng</button></div>
 <div id="status" role="status"></div><progress id="progress" max="100" value="0" style="width:100%;height:12px;accent-color:#72d1bf"></progress><p class="hint" id="progressLabel">Sẵn sàng xem trước</p><a id="downloadLink">Tải video</a>
@@ -114,6 +114,30 @@ function makePlan(plan){
 }
 function choose(t){const v=t.toLowerCase();if(/biển|đảo|đại dương|san hô|thủy sản|marine|ocean/.test(v))return 'ocean';if(/rừng|cây|sinh vật|môi trường|động vật|thiên nhiên|forest/.test(v))return 'nature';if(/vũ trụ|hành tinh|mặt trời|thiên văn|space|planet/.test(v))return 'space';if(/lịch sử|triều đại|di tích|vua|thời cổ|history/.test(v))return 'history';if(/máy tính|robot|ai|internet|công nghệ|digital|technology/.test(v))return 'tech';if(/hóa học|vật lí|nguyên tử|thí nghiệm|khoa học|science/.test(v))return 'science';return 'city'}
 function sentences(txt,count){const pieces=txt.replace(/[\n\r]+/g,'. ').split(/(?<=[.!?;。！？])\s+/).map(s=>s.trim()).filter(Boolean);if(!pieces.length)return Array(count).fill('Nội dung đang được chuẩn bị');const chunks=Array.from({length:count},()=>[]);pieces.forEach((p,i)=>chunks[Math.min(count-1,Math.floor(i*count/pieces.length))].push(p));for(let i=0;i<count;i++)if(!chunks[i].length)chunks[i].push(pieces[Math.min(pieces.length-1,Math.floor(i*pieces.length/count))]);return chunks.map(a=>a.join(' '))}
+
+function parseSRT(s){
+ const blocks=s.replace(/\r/g,'').replace(/^\uFEFF/,'').trim().split(/\n\s*\n/),cues=[];
+ const ts=x=>{const m=x.trim().match(/^(\d{1,2}):(\d{2}):(\d{2})[,.](\d{1,3})$/);return m?Number(m[1])*3600+Number(m[2])*60+Number(m[3])+Number(m[4].padEnd(3,'0'))/1000:null};
+ for(const b of blocks){const l=b.split('\n'),ix=l.findIndex(x=>x.includes('-->'));if(ix<0)continue;const pair=l[ix].split('-->'),start=ts(pair[0]),end=ts(pair[1]);if(start===null||end===null||end<=start)continue;const text=l.slice(ix+1).join(' ').replace(/<[^>]*>/g,'').trim();if(text)cues.push({start,end,text});}
+ return cues.sort((a,b)=>a.start-b.start);
+}
+let subtitleCues=[];
+$('subtitleFile').addEventListener('change',async()=>{
+ const f=$('subtitleFile').files[0];subtitleCues=f?parseSRT(await f.text()):[];
+ $('syncStatus').textContent=subtitleCues.length?'Đã tải '+subtitleCues.length+' câu SRT có mốc thời gian. Phụ đề sẽ theo đúng timecode.':'Không có SRT hợp lệ: dùng ước lượng theo độ dài câu.';
+});
+function segments(total){
+ const scenes=state.scenes,n=scenes.length,weights=scenes.map(s=>Math.max(1,s.replace(/\s/g,'').length)),sum=weights.reduce((a,b)=>a+b,0);
+ let time=0;return weights.map((v,i)=>{const start=time;time=i===n-1?total:time+total*v/sum;return {start,end:time,text:scenes[i]};});
+}
+function locate(t,timeline){let i=timeline.findIndex(x=>t<x.end);return i<0?timeline.length-1:i;}
+function subtitleAt(t,i){
+ if(subtitleCues.length){const c=subtitleCues.find(x=>t>=x.start&&t<x.end);return c?.text||'';}
+ const s=state.scenes[i]||'',length=state.timeline[i].end-state.timeline[i].start;
+ const parts=s.match(/[^,.;!?]+[,.;!?]?/g)?.map(x=>x.trim()).filter(Boolean)||[s];
+ const rel=Math.max(0,t-state.timeline[i].start)/Math.max(.001,length);
+ return parts[Math.min(parts.length-1,Math.floor(rel*parts.length))]||'';
+}
 function settings(){const [rw,rh]=$('ratio').value.split(':').map(Number);return {count:Math.max(2,Math.min(16,Number($('sceneCount').value)||6)),duration:Number($('seconds').value),ratio:rw/rh,theme:$('theme').value,topic:$('topic').value.trim()}}
 function rebuild(){const s=settings();if(!s.topic){$('status').textContent='Hãy nhập nội dung trước.';return false}state.opts=s;state.scenes=sentences(s.topic,s.count);lastScene=-1;state.plans=state.scenes.map((text,i)=>scenePlan(text,i,s.theme==='auto'?choose(s.topic):s.theme));state.theme=s.theme==='auto'?choose(s.topic):s.theme;show(0,0);$('strip').replaceChildren();for(let i=0;i<state.scenes.length;i++){const b=document.createElement('button');b.className='scene-chip';b.textContent='Cảnh '+(i+1);b.onclick=()=>{if(!state.running)show(i,0)};$('strip').append(b)}$('status').textContent='Đã lắp ghép '+s.count+' mô hình riêng theo nội dung từng cảnh.';return true}
 let lastScene=-1;
@@ -148,15 +172,15 @@ $('theme').addEventListener('change',()=>{if(state.running)return;try{rebuild();
 
 const overlayCanvas=document.createElement('canvas'),out=overlayCanvas.getContext('2d');
 function wrap(text,max,font){out.font=font;const words=text.split(/\s+/),arr=[];let row='';for(const word of words){const next=(row+' '+word).trim();if(out.measureText(next).width>max&&row){arr.push(row);row=word}else row=next}if(row)arr.push(row);return arr.slice(0,3)}
-function composite(i,t){const w=renderer.domElement.width,h=renderer.domElement.height;overlayCanvas.width=w;overlayCanvas.height=h;out.drawImage(renderer.domElement,0,0,w,h);const scale=w/1280;out.font='bold '+Math.round(31*scale)+'px system-ui';out.textAlign='left';out.fillStyle='#195b54';out.fillText($('title').textContent,36*scale,66*scale);const sub=state.scenes[i];const font='bold '+Math.round(25*scale)+'px system-ui';const lines=wrap(sub,w*.83,font);out.font=font;const lh=35*scale;const wide=Math.max(...lines.map(x=>out.measureText(x).width));const bw=wide+40*scale,bh=lines.length*lh+18*scale;out.fillStyle='#14584de9';out.beginPath();out.roundRect((w-bw)/2,h-bh-24*scale,bw,bh,9*scale);out.fill();out.textAlign='center';out.fillStyle='#fff';lines.forEach((line,j)=>out.fillText(line,w/2,h-bh-24*scale+33*scale+j*lh));}
+function composite(i,t){const w=renderer.domElement.width,h=renderer.domElement.height;overlayCanvas.width=w;overlayCanvas.height=h;out.drawImage(renderer.domElement,0,0,w,h);const scale=w/1280;out.font='bold '+Math.round(31*scale)+'px system-ui';out.textAlign='left';out.fillStyle='#195b54';out.fillText($('title').textContent,36*scale,66*scale);const sub=subtitleAt(t,i);const font='bold '+Math.round(25*scale)+'px system-ui';const lines=sub?wrap(sub,w*.83,font):[];out.font=font;const lh=35*scale;const wide=lines.length?Math.max(...lines.map(x=>out.measureText(x).width)):0;const bw=wide+40*scale,bh=lines.length*lh+18*scale;if(lines.length){out.fillStyle='#14584de9';out.beginPath();out.roundRect((w-bw)/2,h-bh-24*scale,bw,bh,9*scale);out.fill();}out.textAlign='center';out.fillStyle='#fff';lines.forEach((line,j)=>out.fillText(line,w/2,h-bh-24*scale+33*scale+j*lh));}
 let cancelRun=false;
 $('stopPreview').onclick=()=>{cancelRun=true;$('status').textContent='Đang dừng...';if(speech)speechSynthesis.cancel()};
 async function run(exporting){if(state.running)return;if(!rebuild())return;cancelRun=false;state.running=true;$('preview').disabled=$('export').disabled=$('generate').disabled=true;$('stopPreview').disabled=false;$('progress').value=0;
-const s=state.opts,duration=s.count*s.duration;$('status').textContent=exporting?'Đang dựng và xuất video...':'Đang xem trước...';
+const s=state.opts;let duration=s.count*s.duration;$('status').textContent=exporting?'Đang dựng và xuất video...':'Đang xem trước...';
 let rec=null,chunks=[],audioElement=null,audioCtx=null,stream=null,track=null;try{
  resize();stopTrial();const file=$('audio').files[0];let type='';
  if(file&&speech)speechSynthesis.cancel();
- if(file){audioElement=new Audio(chosenAudioUrl||URL.createObjectURL(file));audioElement.preload='auto';await new Promise((resolve,reject)=>{audioElement.onloadedmetadata=resolve;audioElement.onerror=()=>reject(new Error('Không giải mã được tệp âm thanh đã chọn'));audioElement.load()});$('status').textContent='Đang dùng giọng tải lên: '+file.name;}
+ if(file){audioElement=new Audio(chosenAudioUrl||URL.createObjectURL(file));audioElement.preload='auto';await new Promise((resolve,reject)=>{audioElement.onloadedmetadata=resolve;audioElement.onerror=()=>reject(new Error('Không giải mã được tệp âm thanh đã chọn'));audioElement.load()});duration=audioElement.duration;if(!Number.isFinite(duration)||duration<=0)throw new Error('Không đo được thời lượng file âm thanh');$('status').textContent='Đang đồng bộ '+file.name+' ('+duration.toFixed(1)+' giây)';}
  if(exporting){
  if(!window.MediaRecorder||!overlayCanvas.captureStream)throw Error('Trình duyệt không hỗ trợ xuất video.');
  type=['video/mp4;codecs=avc1.42E01E','video/webm;codecs=vp9','video/webm'].find(v=>MediaRecorder.isTypeSupported(v));if(!type)throw Error('Thiết bị không hỗ trợ codec video.');
@@ -164,16 +188,17 @@ let rec=null,chunks=[],audioElement=null,audioCtx=null,stream=null,track=null;tr
  if(file){audioCtx=new AudioContext();const src=audioCtx.createMediaElementSource(audioElement),dest=audioCtx.createMediaStreamDestination();src.connect(dest);src.connect(audioCtx.destination);for(const at of dest.stream.getAudioTracks())stream.addTrack(at);await audioCtx.resume();}
  rec=new MediaRecorder(stream,{mimeType:type,videoBitsPerSecond:3000000});rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};rec.start(500);
  }
+ state.timeline=segments(duration);
  if(audioElement)await audioElement.play();
  let start=performance.now(),old=-1,lastUpdate=0;
  await new Promise((resolve,reject)=>{function tick(now){
   if(cancelRun){resolve();return;}
   try{
-   const t=Math.min(duration,(now-start)/1000),i=Math.min(s.count-1,Math.floor(t/s.duration));
+   const t=Math.min(duration,audioElement?audioElement.currentTime:(now-start)/1000),i=locate(t,state.timeline);
    if(i!==old){if(!exporting&&!file)talk(state.scenes[i]);old=i;}
-   show(i,t);if(exporting)composite(i,t);
+   show(i,t);$('subtitle').textContent=subtitleAt(t,i);if(exporting)composite(i,t);
    if(now-lastUpdate>200){$('progress').value=Math.min(100,t/duration*100);$('progressLabel').textContent='Cảnh '+(i+1)+'/'+s.count+' · '+Math.floor(t)+'/'+duration+' giây';lastUpdate=now;}
-   if(t<duration)requestAnimationFrame(tick);else resolve();
+   if(t<duration&&!(audioElement&&audioElement.ended))requestAnimationFrame(tick);else resolve();
   }catch(error){reject(error)}
  }requestAnimationFrame(tick)});
  if(cancelRun){if(rec&&rec.state!=='inactive'){rec.stop();await new Promise(resolve=>rec.onstop=resolve)}$('status').textContent='Đã dừng. Bạn có thể bấm Xem trước lại.';return;}
