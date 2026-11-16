@@ -82,6 +82,7 @@ input:focus,select:focus,textarea:focus{border-color:#db7298;box-shadow:0 0 0 3p
 </div></details><h2 class="action-heading">Tạo và xuất video</h2>
 <div class="buttons"><button id="generate">✦ Tạo phân cảnh 3D</button><button id="preview" class="secondary">▶ Xem trước</button><button id="export" class="secondary">↓ Xuất video</button><button id="stopPreview" class="secondary" disabled>■ Dừng</button></div>
 <div id="status" role="status"></div><progress id="progress" max="100" value="0" style="width:100%;height:12px;accent-color:#72d1bf"></progress><p class="hint" id="progressLabel">Sẵn sàng xem trước</p><a id="downloadLink">Tải video</a>
+<div class="facebook-share-panel" style="margin-top:12px;padding:12px;border:1px solid #efd9e4;background:#fff7fa;border-radius:12px"><strong style="color:#943d67">Chia sẻ lên Facebook cá nhân</strong><p class="hint">Facebook Professional Mode không cho ứng dụng tự tải video lên hồ sơ qua Graph API. Bước này mở hồ sơ của bạn để bạn đăng video vừa tải xuống.</p><button type="button" id="facebookProfile" class="secondary" style="width:100%">↗ Mở Facebook và sao chép tiêu đề</button><p class="hint" id="facebookShareHint">Xuất video → tải tệp → mở Facebook → chọn Ảnh/video → đăng.</p></div>
 </section>
 <section class="panel"><div class="preview-heading"><h2>Xem trước video</h2><span class="preview-status">● Mô hình 3D low-poly</span></div><div id="stage"><div id="overlays"><div id="title">AI Motion Studio · 3D Low-poly</div><div id="subtitle">Nhập nội dung và nhấn Tạo phân cảnh 3D</div></div></div><div class="scene-strip" id="strip"></div></section></div>
 <footer>AI Motion Studio 3D · Phiên bản thử nghiệm miễn phí. Không lưu nội dung và không chuyển văn bản đến dịch vụ tạo AI bên ngoài.</footer>
@@ -299,6 +300,7 @@ let rec=null,chunks=[],audioElement=null,audioCtx=null,stream=null,track=null;tr
 $('generate').onclick=()=>{try{if(rebuild())resize()}catch(e){$('status').textContent='Lỗi dựng mô hình: '+e.message;console.error(e)}};
 $('preview').onclick=()=>run(false).catch(e=>{$('status').textContent='Lỗi xem trước: '+e.message;console.error(e)});
 $('export').onclick=()=>run(true).catch(e=>{$('status').textContent='Lỗi xuất video: '+e.message;console.error(e)});
+$('facebookProfile').onclick=async()=>{const name=$('videoTitle').value.trim()||'Video giáo dục';window.open('https://www.facebook.com/profile.php?id=61596558204912','_blank','noopener,noreferrer');try{await navigator.clipboard.writeText(name);$('facebookShareHint').textContent='Đã sao chép tiêu đề. Mở Facebook, tạo bài viết và tải video đã xuất lên.';}catch(e){$('facebookShareHint').textContent='Mở Facebook, tạo bài viết và tải video đã xuất lên. Tiêu đề: '+name;}};
 $('ratio').onchange=()=>{if(!state.running)resize()};$('videoTitle').addEventListener('input',()=>{if(!state.running){if(state.opts)state.opts.videoTitle=$('videoTitle').value.trim();$('title').textContent=$('videoTitle').value.trim()}});
 try{rebuild();resize()}catch(e){$('status').textContent='Lỗi khởi tạo cảnh 3D: '+e.message;console.error(e)}
 </script></body></html>
